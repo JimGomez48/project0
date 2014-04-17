@@ -29,7 +29,6 @@ def copyToStr (arr, index, size):
         arr=insertToStr(arr,index[i], arr1)
     return arr
 
-<<<<<<< HEAD
 '''
 Generates snps at random indeces in the array and returns a list
 of the indeces of snps
@@ -63,14 +62,12 @@ def generateSnps(arr):
     # print snpIndeces
     return snpIndeces
 
-=======
 def invertStr (arr, index, size):
     arr1= arr[index:index+size]
     arr=removeFrmStrM(arr,index, size)
     arr=insertToStr(arr,index, arr1[::-1])
     return arr
         
->>>>>>> Copy and Invert is functional
 # Generate random genetic sequence of length 1 million
 nucleobaseList = ["C","T","G","A"]
 
@@ -241,4 +238,3 @@ for i in range(0, (int)(stringLen*0.15)):
     
 baseErrorFile.close()
 readsFile.close()    
-    '''
