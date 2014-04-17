@@ -25,6 +25,39 @@ def copyToStr (arr, index, size):
         arr[index[i]:index[i]+size]=arr1
     return arr
 
+'''
+Generates snps at random indeces in the array and returns a list
+of the indeces of snps
+'''
+def generateSnps(arr):
+    origLength = len(arr)
+    count = 0.0
+    snpIndeces = []
+
+    while (count/len(arr)) < .003:
+        index = random.randint(0, len(arr))
+        snpIndeces.append(index)
+        if arr[index] == "A":
+            snp = random.choice(["C", "G", "T"])
+        elif arr[index] == "C":
+            snp = random.choice(["A", "G", "T"])
+        elif arr[index] == "G":
+            snp = random.choice(["A", "C", "T"])
+        elif arr[index] == "T":
+            snp = random.choice(["A", "C", "G"])
+
+        removeFrmStr(arr, index)
+        insertToStr(arr, index, snp)
+
+        count += 1
+        # print count
+        # print index
+        # print "orig: " + arr[index]
+        # print "snp: " + snp
+
+    # print snpIndeces
+    return snpIndeces
+
 # Generate random genetic sequence of length 1 million
 nucleobaseList = ["C","T","G","A"]
 
