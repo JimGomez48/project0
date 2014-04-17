@@ -12,6 +12,10 @@ def removeFrmStr (arr, index):
     arr2 = arr[index+1:]
     return arr1+arr2
 
+def removeFrmStrM (arr, index, size):
+    arr1 = arr[0:index]
+    arr2 = arr[index+size:]
+    return arr1+arr2
 
 def insertToStr (arr, index, char):
     arr1 = arr[0:index]
@@ -22,9 +26,10 @@ def copyToStr (arr, index, size):
     arr1=arr[index[0]:index[0]+size]
     #copy the substring into the array
     for i in range(1,len(index)):
-        arr[index[i]:index[i]+size]=arr1
+        arr=insertToStr(arr,index[i], arr1)
     return arr
 
+<<<<<<< HEAD
 '''
 Generates snps at random indeces in the array and returns a list
 of the indeces of snps
@@ -58,6 +63,14 @@ def generateSnps(arr):
     # print snpIndeces
     return snpIndeces
 
+=======
+def invertStr (arr, index, size):
+    arr1= arr[index:index+size]
+    arr=removeFrmStrM(arr,index, size)
+    arr=insertToStr(arr,index, arr1[::-1])
+    return arr
+        
+>>>>>>> Copy and Invert is functional
 # Generate random genetic sequence of length 1 million
 nucleobaseList = ["C","T","G","A"]
 
@@ -109,56 +122,62 @@ baseAnswerFile.write("ID: ")
 baseAnswerFile.write(str(ID))
 baseAnswerFile.write("\n")
 
-baseAnswerFile.close()
 #Copy Numbers
 #Sequence of random length between 20-50
-'''
+
+copyIndex=[]
+copyLen=[]
 for copyLoop in range(0,1):
-    print copyLoop
-    copyLen = random.randint(20,50)
-    copyIndex=[]
-    copyIndex.append(int(random.random()*(stringLen - copyLen) ))
+    copyLen.append(random.randint(20,50))
+    copyIndex.append(int(random.random()*(stringLen - copyLen[copyLoop]) ))
     
     #0.001% of the time the string is copied
     for i in range (0,(int)(stringLen*0.00001)):
-        temp=(int(random.random()*(stringLen - copyLen) ))
+        temp=(int(random.random()*(stringLen - copyLen[copyLoop]) ))
         write=1
         for j in range (0,len(copyIndex)-1):
-            if(temp>copyIndex[j] and temp<copyIndex[j]+copyLen):
+            if(temp>copyIndex[j] and temp<copyIndex[j]+copyLen[copyLoop]):
                 write=0
                 break;
         if(write==1):
             copyIndex.append(temp)
     
-    baseFileList=copyToStr(baseFileList,copyIndex,copyLen)
+    baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
     baseAnswerFile.write("Copy Num: \n")
-    baseAnswerFile.write(baseFileList[copyIndex:copyIndex+copyLen])
+    baseAnswerFile.write((str) (baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]))
     baseAnswerFile.write("\n")
-    baseAnswerFile.write(copyIndex)
+    baseAnswerFile.write((str) (copyIndex))
     baseAnswerFile.write("\n")
+
+#Inversions
+#0.001% of string is inverted
+actualInv=0
+invIndex=[]
+for invLoop in range(0, (int)(0.00001*stringLen)):
+    write =1
+    temp=int(random.random()*(stringLen - copyLen[copyLoop]) )
+    invLen = random.randint(20,50)
+    
+    #CopyLen[0] for now
+    # UPDATE THIS WHEN POSSIBLE
+    #
+    
+    for i in range(0,len(copyIndex)):
+        if(temp+invLen > copyIndex[i] and temp<copyIndex[i]+copyLen[0]):
+            write=0
+            break
+    if(write==1):
+        actualInv+=1
+        invIndex.append(temp)
+        baseFileList=invertStr (baseFileList, invIndex[actualInv-1], invLen)
+        
+baseAnswerFile.write("Inv Num: \n")
+baseAnswerFile.write((str) (invIndex))
+baseAnswerFile.write("\n")
 
 baseAnswerFile.close()
 
 #sys.exit([0])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # File to hold reads from 1 million char sequence
 readsFile = open("1_million_random_seq_error_reads.txt", "w")
