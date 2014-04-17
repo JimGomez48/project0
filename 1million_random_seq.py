@@ -89,24 +89,7 @@ stringLen=1000000
 for i in range(0, stringLen):
     randomBase = random.choice(nucleobaseList)
     baseFile.write(randomBase)
-    
-    # Insert error bases (1% error) into an error file
-    # Get value between 0 and 1
-    '''randomCondition = random.random()
-    if (randomCondition <= 0.01):
-        randomBaseError = random.choice(nucleobaseList)
-        while (randomBaseError == randomBase):
-            randomBaseError = random.choice(nucleobaseList)
-            
-        baseErrorFile.write(randomBaseError)
-        counter = counter + 1
-        #print(str(counter) + "    " + str(randomBase) + "    " + str(randomBaseError))
-        #if (randomBase == randomBaseError):
-        #    print("ERROR")
-    else:
-        baseErrorFile.write(randomBase)'''
 baseFile.close()
-#baseErrorFile.close()
 
 # Open file for getting reads
 baseFile = open("1_million_random_seq.txt", "r")
@@ -137,6 +120,7 @@ for copyLoop in range(0,1):
                 write=0
                 break;
         if(write==1):
+            copyLen.append(copyLen[copyLoop])
             copyIndex.append(temp)
     
     baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
@@ -155,12 +139,8 @@ for invLoop in range(0, (int)(0.00001*stringLen)):
     temp=int(random.random()*(stringLen - copyLen[copyLoop]) )
     invLen = random.randint(20,50)
     
-    #CopyLen[0] for now
-    # UPDATE THIS WHEN POSSIBLE
-    #
-    
     for i in range(0,len(copyIndex)):
-        if(temp+invLen > copyIndex[i] and temp<copyIndex[i]+copyLen[0]):
+        if(temp+invLen > copyIndex[i] and temp<copyIndex[i]+copyLen[i]):
             write=0
             break
     if(write==1):
@@ -172,10 +152,17 @@ baseAnswerFile.write("Inv Num: \n")
 baseAnswerFile.write((str) (invIndex))
 baseAnswerFile.write("\n")
 
+#IN/DELS
+
+
+#SNPS
+baseAnswerFile.write("SNP: \n")
+baseAnswerFile.write((str)(generateSnps(baseFileList)))
+baseAnswerFile.write("\n")
+
 baseAnswerFile.close()
 
-#sys.exit([0])
-
+#READS
 # File to hold reads from 1 million char sequence
 readsFile = open("1_million_random_seq_error_reads.txt", "w")
 
@@ -185,56 +172,39 @@ for i in range(0, (int)(stringLen*0.15)):
     randomGap = random.randint(90, 110)
     # Second read
     startIndexPart2 = startIndexPart1 + randomGap + 1
+    readList = baseFileList[startIndexPart1:startIndexPart1+210]
     
-    # Insertion/deletions percentage (0.1% error) 
+    # 1% error in reads 10% reads are garbage
     # Get value between 0 and 1
-    randomInDelCondition = random.random()
+    randomReadCondition = random.random()
     
-    # DELETIONS CASE
-    if (randomInDelCondition > 0.005 and randomInDelCondition <= 0.01):
-        tempA=0
-        tempB=0
-        delList = baseFileList[0][startIndexPart1:startIndexPart1+210]
-        
+    #Throw in an error in 1% of the read length 200
+    errors= (int) (0.01*200)
+    
+    for i in range(0,errors):
+        #pick an index
         randomIndex = random.randint(0, 99)
+        if(randomIndex < 50): pass
+        else: randomIndex += randomGap - 50
         
-        if(randomIndex < 50): tempA=-1
-        else: 
-            randomIndex += randomGap - 50
-            tempB=-1
-        
-        delList=removeFrmStr(delList, randomIndex)
-        
-        readsFile.write(delList[0:50+tempA])
-        readsFile.write(randomGap*'-')
-        readsFile.write(delList[50+tempA+randomGap:100+tempA+randomGap+tempB])
-        readsFile.write("\n")
-        
-    # INSERTIONS CASE    
-    elif (randomInDelCondition <= 0.005):
-        tempA=0
-        tempB=0
-        insList = baseFileList[0][startIndexPart1:startIndexPart1+210]
+        randomReadError = random.choice(nucleobaseList)
+        while (randomReadError == readList[randomIndex]):
+            randomReadError = random.choice(nucleobaseList)        
     
-        randomIndex = random.randint(0, 99)
-        
-        if(randomIndex < 50): tempA=1
-        else: 
-            randomIndex += randomGap - 50
-            tempB=1
-            
-        insList = insertToStr(insList, randomIndex, random.choice(nucleobaseList))
-            
-        readsFile.write(insList[0:50+tempA])
-        readsFile.write(randomGap*'-')
-        readsFile.write(insList[50+tempA+randomGap:100+tempA+randomGap+tempB])
-        readsFile.write("\n")
-        
-    else:
-        readsFile.write(baseFileList[0][startIndexPart1:startIndexPart1+50])
-        readsFile.write(randomGap*'-')
-        readsFile.write(baseFileList[0][startIndexPart2:startIndexPart2+50]) 
-        readsFile.write("\n")
+    #Full Garbage Read
+    if(randomReadCondition>0.01 and randomReadCondition<0.11):
+        readList=""
+        for i in range(0,50):
+            readList+=(random.choice(nucleobaseList) )   
+        for i in range(0,randomGap):
+            readList+='-'
+        for i in range(50,99):
+            readList+=random.choice(nucleobaseList)              
     
-baseErrorFile.close()
+
+    readsFile.write((str) (readList[:50]))
+    readsFile.write(randomGap*'-')
+    readsFile.write((str) ( readList[50+randomGap:])) 
+    readsFile.write("\n")
+    
 readsFile.close()    
