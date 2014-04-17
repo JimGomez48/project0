@@ -154,7 +154,7 @@ baseAnswerFile.write("\n")
 
 #INS/DELS
 
-# List of indices at which deletions and inserts were made
+# Lists of indices at which deletions and inserts were made
 insList = []
 delList = []
 
@@ -162,23 +162,24 @@ delList = []
 # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
 sectionLen = int(stringLen * 0.001 * 2)
 for i in range(0, int(0.0005 * stringLen)):
+    # Get range of the indices of the subsection
     indicesList = range((i*sectionLen), ((i+1)*sectionLen) )
     
     # Make deletion in i-th section
+    # Get index to delete from
     delIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 1)
+    # Delete the nucleotide at the index
     baseFileList = removeFrmStr(baseFileList, delIndex)
     delList.append(delIndex)
     
     # Make insertion in i-th section
+    # Get index to insert at
     insIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 2)
+    # Insert a random nucleotide at the index
     baseFileList = insertToStr(baseFileList, insIndex, str(random.choice(nucleobaseList)))
     insList.append(insIndex)
-    
-print len(delList)
-print delList
-print len(insList)
-print insList    
-
+       
+# Write insert and delete indices to answer key file
 baseAnswerFile.write("Inserts:\n")
 baseAnswerFile.write(str(insList))
 baseAnswerFile.write("\n")
