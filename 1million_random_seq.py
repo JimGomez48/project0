@@ -152,8 +152,41 @@ baseAnswerFile.write("Inv Num: \n")
 baseAnswerFile.write((str) (invIndex))
 baseAnswerFile.write("\n")
 
-#IN/DELS
+#INS/DELS
 
+# List of indices at which deletions and inserts were made
+insList = []
+delList = []
+
+# Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
+# 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
+sectionLen = int(stringLen * 0.001 * 2)
+for i in range(0, int(0.0005 * stringLen)):
+    indicesList = range((i*sectionLen), ((i+1)*sectionLen) )
+    
+    # Make deletion in i-th section
+    delIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 1)
+    baseFileList = removeFrmStr(baseFileList, delIndex)
+    delList.append(delIndex)
+    
+    # Make insertion in i-th section
+    insIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 2)
+    baseFileList = insertToStr(baseFileList, insIndex, str(random.choice(nucleobaseList)))
+    insList.append(insIndex)
+    
+print len(delList)
+print delList
+print len(insList)
+print insList    
+
+baseAnswerFile.write("Inserts:\n")
+baseAnswerFile.write(str(insList))
+baseAnswerFile.write("\n")
+baseAnswerFile.write("Deletes:\n")
+baseAnswerFile.write(str(delList))
+baseAnswerFile.write("\n")
+
+# END INSERTS AND DELETIONS
 
 #SNPS
 baseAnswerFile.write("SNP: \n")
