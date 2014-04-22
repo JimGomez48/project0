@@ -72,7 +72,7 @@ def invertStr (arr, index, size):
 nucleobaseList = ["C","T","G","A"]
 
 # This is the true file without error introduced
-baseFile = open("1_million_random_seq.txt", "w")
+baseFile = open("ref_genome1.txt", "w")
 
 counter = 0
 
@@ -92,13 +92,13 @@ for i in range(0, stringLen):
 baseFile.close()
 
 # Open file for getting reads
-baseFile = open("1_million_random_seq.txt", "r")
+baseFile = open("ref_genome1.txt", "r")
 
 baseFileList = baseFile.readline()
 
 ID = hash(baseFileList[:100])
-baseAnswerFile = open("1_million_random_seq_error_ans_key.txt", "w")
-baseAnswerFile.write("ID: ")
+baseAnswerFile = open("ans_genome1.txt", "w")
+baseAnswerFile.write(">ID: \n")
 baseAnswerFile.write(str(ID))
 baseAnswerFile.write("\n")
 
@@ -124,7 +124,7 @@ for copyLoop in range(0,1):
             copyIndex.append(temp)
     
     baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
-    baseAnswerFile.write("Copy Num: \n")
+    baseAnswerFile.write(">Copy Num: \n")
     baseAnswerFile.write((str) (baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]))
     baseAnswerFile.write("\n")
     baseAnswerFile.write((str) (copyIndex))
@@ -148,7 +148,7 @@ for invLoop in range(0, (int)(0.00001*stringLen)):
         invIndex.append(temp)
         baseFileList=invertStr (baseFileList, invIndex[actualInv-1], invLen)
         
-baseAnswerFile.write("Inv Num: \n")
+baseAnswerFile.write(">Inv Num: \n")
 baseAnswerFile.write((str) (invIndex))
 baseAnswerFile.write("\n")
 
@@ -180,17 +180,17 @@ for i in range(0, int(0.0005 * stringLen)):
     insList.append(insIndex)
        
 # Write insert and delete indices to answer key file
-baseAnswerFile.write("Inserts:\n")
+baseAnswerFile.write(">Inserts:\n")
 baseAnswerFile.write(str(insList))
 baseAnswerFile.write("\n")
-baseAnswerFile.write("Deletes:\n")
+baseAnswerFile.write(">Deletes:\n")
 baseAnswerFile.write(str(delList))
 baseAnswerFile.write("\n")
 
 # END INSERTS AND DELETIONS
 
 #SNPS
-baseAnswerFile.write("SNP: \n")
+baseAnswerFile.write(">SNP: \n")
 baseAnswerFile.write((str)(generateSnps(baseFileList)))
 baseAnswerFile.write("\n")
 
@@ -198,7 +198,7 @@ baseAnswerFile.close()
 
 #READS
 # File to hold reads from 1 million char sequence
-readsFile = open("1_million_random_seq_error_reads.txt", "w")
+readsFile = open("reads_genome1.txt", "w")
 
 for i in range(0, (int)(stringLen*0.15)):
     # First read
@@ -237,7 +237,7 @@ for i in range(0, (int)(stringLen*0.15)):
     
 
     readsFile.write((str) (readList[:50]))
-    readsFile.write(randomGap*'-')
+    readsFile.write(',')
     readsFile.write((str) ( readList[50+randomGap:])) 
     readsFile.write("\n")
     
