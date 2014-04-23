@@ -91,13 +91,15 @@ for i in range(0, stringLen):
     baseFile.write(randomBase)
 baseFile.close()
 
+filename="genome1"
+
 # Open file for getting reads
-baseFile = open("ref_genome1.txt", "r")
+baseFile = open("ref_"+filename+".txt", "r")
 
 baseFileList = baseFile.readline()
 
 ID = hash(baseFileList[:100])
-baseAnswerFile = open("ans_genome1.txt", "w")
+baseAnswerFile = open("ans_"+filename+".txt", "w")
 baseAnswerFile.write(">ID: \n")
 baseAnswerFile.write(str(ID))
 baseAnswerFile.write("\n")
@@ -198,7 +200,8 @@ baseAnswerFile.close()
 
 #READS
 # File to hold reads from 1 million char sequence
-readsFile = open("reads_genome1.txt", "w")
+
+readsFile = open("reads_"+filename+".txt", "w")
 
 for i in range(0, (int)(stringLen*0.15)):
     # First read
