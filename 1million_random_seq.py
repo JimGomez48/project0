@@ -161,28 +161,40 @@ delList = []
 # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
 sectionLen = int(stringLen * 0.001 * 2)
 for i in range(0, int(0.0005 * stringLen)):
-    # Get range of the indices of the subsection
-    indicesList = range((i*sectionLen), ((i+1)*sectionLen) )
     
-    # Make deletion in i-th section
+    # Make deletions in i-th section
     # Get index to delete from
-    delIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 1)
-    # Delete the nucleotide at the index
-    baseFileList = removeFrmStr(baseFileList, delIndex)
-    delList.append(delIndex)
     
-    # Make insertion in i-th section
+    # Sequence of 5 nucleotides deleted
+    delSeq = []
+    delStartIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 5)
+    # Delete the nucleotides starting at the index
+    for j in range(0, 5):
+        nucleoDeleted = baseFileList[delStartIndex]
+        baseFileList = removeFrmStr(baseFileList, delStartIndex)
+        delSeq.append(nucleoDeleted)
+    
+    delList.append(''.join(delSeq) + "," + str(delStartIndex))
+    
+    # Make insertions in i-th section
     # Get index to insert at
-    insIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 2)
-    # Insert a random nucleotide at the index
-    baseFileList = insertToStr(baseFileList, insIndex, str(random.choice(nucleobaseList)))
-    insList.append(insIndex)
-       
-# Write insert and delete indices to answer key file
-baseAnswerFile.write(">INSERT\n")
+
+    # Sequence of 5 nucleotides inserted
+    insSeq = []
+    insStartIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 5)
+    # Insert the nucleotides starting at the index
+    for j in range(0, 5):
+        randomNucleo = random.choice(nucleobaseList)
+        baseFileList = insertToStr(baseFileList, insStartIndex + j, str(randomNucleo))
+        insSeq.append(randomNucleo)
+        
+    insList.append(''.join(insSeq) + "," + str(insStartIndex))
+
+# Write insert and delete sequences and indices to answer key file
+baseAnswerFile.write(">INSERTS:\n")
 baseAnswerFile.write(str(insList))
 baseAnswerFile.write("\n")
-baseAnswerFile.write(">DELETE\n")
+baseAnswerFile.write(">DELETES:\n")
 baseAnswerFile.write(str(delList))
 baseAnswerFile.write("\n")
 
