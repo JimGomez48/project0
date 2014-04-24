@@ -12,14 +12,21 @@ import sys
 #
 # #####################
 
+def grade(fp, studTot, fn, tot):
+    return (1-fp/float(studTot))*(1-float(fn)/tot)
+
+
 #criteria to grade the copy portion
+#stud contains the student answers
+#key contains the answer key
+# i is the index of the array for which the answers begin on
+# These structs will determine the number of false positives and negatives and
+# use the grade struct to determine an accurate ranking/grade
+
 def COPYgrade ( stud, key, i):
     pass
 
 #criteria to grade the inversion portion
-#stud contains the student answers
-#key contains the answer key
-# i is the index of the array for which the answers begin on
 def INVgrade ( stud, key, i):
     pass
 
