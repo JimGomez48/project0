@@ -62,7 +62,7 @@ def invertStr (arr, index, size):
     arr1= arr[index:index+size]
     arr=removeFrmStrM(arr,index, size)
     arr=insertToStr(arr,index, arr1[::-1])
-    return arr
+    return arr1
         
 # Generate random genetic sequence of length 1 million
 nucleobaseList = ["C","T","G","A"]
@@ -79,9 +79,9 @@ counter = 0
 #
 stringLen=1000000
 
+print "Running..."
 #create original string and ID
 #ID will be a hash of the first 100 characters
-
 for i in range(0, stringLen):
     randomBase = random.choice(nucleobaseList)
     baseFile.write(randomBase)
@@ -126,13 +126,16 @@ for copyLoop in range(0,1):
     baseAnswerFile.write(">COPY\n")
     baseAnswerFile.write((str)(baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]) + ',')
     for i in range(0, len(copyIndex)):
-        baseAnswerFile.write((str)(copyIndex[i]) + ',')
+        baseAnswerFile.write((str)(copyIndex[i]))
+        if i < len(copyIndex) - 1:
+            baseAnswerFile.write(',')
     baseAnswerFile.write("\n")
 
 #Inversions
 #0.001% of string is inverted
 actualInv=0
 invIndex=[]
+orig = []
 for invLoop in range(0, (int)(0.00001*stringLen)):
     write =1
     temp=int(random.random()*(stringLen - copyLen[copyLoop]) )
@@ -144,12 +147,16 @@ for invLoop in range(0, (int)(0.00001*stringLen)):
             break
     if(write==1):
         actualInv+=1
-        invIndex.append(temp)
-        baseFileList=invertStr (baseFileList, invIndex[actualInv-1], invLen)
-        
+        # baseFileList=
+        # orig =
+        invIndex.append([0, temp])
+        orig = invertStr(baseFileList, invIndex[actualInv-1][1], invLen)
+        invIndex[invLoop][0] = orig
+
+
 baseAnswerFile.write(">INVERSION\n")
-baseAnswerFile.write((str) (invIndex))
-baseAnswerFile.write("\n")
+for i in range(0, len(invIndex)):
+    baseAnswerFile.write(invIndex[i][0] + "," + (str)(invIndex[i][1]) + "\n")
 
 #INS/DELS
 
@@ -256,4 +263,5 @@ for i in range(0, (int)(stringLen*0.15)):
     readsFile.write((str) ( readList[50+randomGap:])) 
     readsFile.write("\n")
     
-readsFile.close()    
+readsFile.close()
+print "DONE"
