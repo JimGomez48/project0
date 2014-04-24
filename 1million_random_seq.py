@@ -195,13 +195,13 @@ for i in range(0, int(0.0005 * stringLen)):
      
        
 # Write insert and delete sequences and indices to answer key file
-baseAnswerFile.write(">INSERTS:\n")
+baseAnswerFile.write(">INSERT:\n")
 for i in range(0, len(insList)):
     baseAnswerFile.write(str(insList[i]))
     baseAnswerFile.write("\n")
 baseAnswerFile.write("\n")
 
-baseAnswerFile.write(">DELETES:\n")
+baseAnswerFile.write(">DELETE:\n")
 for i in range(0, len(delList)):
     baseAnswerFile.write(str(delList[i]))
     baseAnswerFile.write("\n")
