@@ -172,11 +172,14 @@ for i in range(0, int(0.0005 * stringLen)):
     # Make deletions in i-th section
     # Get index to delete from
     
-    # Sequence of 5 nucleotides deleted
+    # Number of nucleotides to insert and delete
+    numToInsDel = random.randint(1,5)
+    
+    # Sequence of nucleotides deleted
     delSeq = []
-    delStartIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 5)
+    delStartIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - numToInsDel)
     # Delete the nucleotides starting at the index
-    for j in range(0, 5):
+    for j in range(0, numToInsDel):
         nucleoDeleted = baseFileList[delStartIndex]
         baseFileList = removeFrmStr(baseFileList, delStartIndex)
         delSeq.append(nucleoDeleted)
@@ -186,24 +189,28 @@ for i in range(0, int(0.0005 * stringLen)):
     # Make insertions in i-th section
     # Get index to insert at
 
-    # Sequence of 5 nucleotides inserted
+    # Sequence of nucleotides inserted
     insSeq = []
-    insStartIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - 5)
+    insStartIndex = random.randint(i*sectionLen, ((i+1)*sectionLen) - numToInsDel)
     # Insert the nucleotides starting at the index
-    for j in range(0, 5):
+    for j in range(0, numToInsDel):
         randomNucleo = random.choice(nucleobaseList)
         baseFileList = insertToStr(baseFileList, insStartIndex + j, str(randomNucleo))
         insSeq.append(randomNucleo)
         
     insList.append(''.join(insSeq) + "," + str(insStartIndex))
-
+     
+       
 # Write insert and delete sequences and indices to answer key file
-baseAnswerFile.write(">INSERTS:\n")
-baseAnswerFile.write(str(insList))
-baseAnswerFile.write("\n")
-baseAnswerFile.write(">DELETES:\n")
-baseAnswerFile.write(str(delList))
-baseAnswerFile.write("\n")
+baseAnswerFile.write(">INSERT:\n")
+for i in range(0, len(insList)):
+    baseAnswerFile.write(str(insList[i]))
+    baseAnswerFile.write("\n")
+
+baseAnswerFile.write(">DELETE:\n")
+for i in range(0, len(delList)):
+    baseAnswerFile.write(str(delList[i]))
+    baseAnswerFile.write("\n")
 
 # END INSERTS AND DELETIONS
 
