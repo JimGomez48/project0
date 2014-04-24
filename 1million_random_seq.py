@@ -99,8 +99,9 @@ baseFile = open("ref_"+filename+".txt", "r")
 baseFileList = baseFile.readline()
 
 ID = hash(baseFileList[:100])
+ID=filename
 baseAnswerFile = open("ans_"+filename+".txt", "w")
-baseAnswerFile.write(">ID: \n")
+baseAnswerFile.write(">ID \n")
 baseAnswerFile.write(str(ID))
 baseAnswerFile.write("\n")
 
@@ -126,7 +127,7 @@ for copyLoop in range(0,1):
             copyIndex.append(temp)
     
     baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
-    baseAnswerFile.write(">Copy Num: \n")
+    baseAnswerFile.write(">COPY\n")
     baseAnswerFile.write((str) (baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]))
     baseAnswerFile.write("\n")
     baseAnswerFile.write((str) (copyIndex))
@@ -150,7 +151,7 @@ for invLoop in range(0, (int)(0.00001*stringLen)):
         invIndex.append(temp)
         baseFileList=invertStr (baseFileList, invIndex[actualInv-1], invLen)
         
-baseAnswerFile.write(">Inv Num: \n")
+baseAnswerFile.write(">INVERSION\n")
 baseAnswerFile.write((str) (invIndex))
 baseAnswerFile.write("\n")
 
@@ -182,17 +183,17 @@ for i in range(0, int(0.0005 * stringLen)):
     insList.append(insIndex)
        
 # Write insert and delete indices to answer key file
-baseAnswerFile.write(">Inserts:\n")
+baseAnswerFile.write(">INSERT\n")
 baseAnswerFile.write(str(insList))
 baseAnswerFile.write("\n")
-baseAnswerFile.write(">Deletes:\n")
+baseAnswerFile.write(">DELETE\n")
 baseAnswerFile.write(str(delList))
 baseAnswerFile.write("\n")
 
 # END INSERTS AND DELETIONS
 
 #SNPS
-baseAnswerFile.write(">SNP: \n")
+baseAnswerFile.write(">SNP \n")
 baseAnswerFile.write((str)(generateSnps(baseFileList)))
 baseAnswerFile.write("\n")
 
