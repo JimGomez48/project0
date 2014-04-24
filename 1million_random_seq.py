@@ -40,7 +40,6 @@ def generateSnps(arr):
 
     while (count/len(arr)) < .003:
         index = random.randint(0, len(arr))
-        snpIndeces.append(index)
         if arr[index] == "A":
             snp = random.choice(["C", "G", "T"])
         elif arr[index] == "C":
@@ -52,14 +51,10 @@ def generateSnps(arr):
 
         removeFrmStr(arr, index)
         insertToStr(arr, index, snp)
+        snpIndeces.append([arr[index],snp, index])
 
         count += 1
-        # print count
-        # print index
-        # print "orig: " + arr[index]
-        # print "snp: " + snp
 
-    # print snpIndeces
     return snpIndeces
 
 def invertStr (arr, index, size):
@@ -194,9 +189,12 @@ baseAnswerFile.write("\n")
 
 #SNPS
 baseAnswerFile.write(">SNP \n")
-baseAnswerFile.write((str)(generateSnps(baseFileList)))
-baseAnswerFile.write("\n")
-
+snps = (generateSnps(baseFileList))
+# baseAnswerFile.write((str)(generateSnps(baseFileList)))
+for i in range(0, len(snps)):
+    baseAnswerFile.write((str)(snps[i][0])+',')
+    baseAnswerFile.write((str)(snps[i][1])+',')
+    baseAnswerFile.write((str)(snps[i][2])+'\n')
 baseAnswerFile.close()
 
 #READS
