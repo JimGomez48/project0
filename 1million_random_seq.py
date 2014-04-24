@@ -124,11 +124,9 @@ for copyLoop in range(0,1):
     
     baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
     baseAnswerFile.write(">COPY\n")
-    baseAnswerFile.write((str)(baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]) + ',')
+    baseAnswerFile.write((str)(baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]))
     for i in range(0, len(copyIndex)):
-        baseAnswerFile.write((str)(copyIndex[i]))
-        if i < len(copyIndex) - 1:
-            baseAnswerFile.write(',')
+        baseAnswerFile.write("," + (str)(copyIndex[i]))
     baseAnswerFile.write("\n")
 
 #Inversions
@@ -215,13 +213,13 @@ for i in range(0, len(delList)):
 # END INSERTS AND DELETIONS
 
 #SNPS
-baseAnswerFile.write(">SNP \n")
+baseAnswerFile.write(">SNP")
 snps = (generateSnps(baseFileList))
 # baseAnswerFile.write((str)(generateSnps(baseFileList)))
 for i in range(0, len(snps)):
-    baseAnswerFile.write((str)(snps[i][0])+',')
+    baseAnswerFile.write("\n" + (str)(snps[i][0])+',')
     baseAnswerFile.write((str)(snps[i][1])+',')
-    baseAnswerFile.write((str)(snps[i][2])+'\n')
+    baseAnswerFile.write((str)(snps[i][2]))
 baseAnswerFile.close()
 
 #READS
