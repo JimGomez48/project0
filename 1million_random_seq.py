@@ -124,9 +124,9 @@ for copyLoop in range(0,1):
     
     baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
     baseAnswerFile.write(">COPY\n")
-    baseAnswerFile.write((str) (baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]))
-    baseAnswerFile.write("\n")
-    baseAnswerFile.write((str) (copyIndex))
+    baseAnswerFile.write((str)(baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]) + ',')
+    for i in range(0, len(copyIndex)):
+        baseAnswerFile.write((str)(copyIndex[i]) + ',')
     baseAnswerFile.write("\n")
 
 #Inversions
