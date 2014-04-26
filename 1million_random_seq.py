@@ -1,8 +1,15 @@
 '''
 Created on Apr 14, 2014
 
-@author: Gabe and Jorge Munoz
+@author: Jorge Munoz, Gabriel Alsheikh, and James Gomez
 '''
+
+
+# ########################
+#
+# To run: python Eval.py studentAnswers.txt
+#
+# #####################
 
 import random
 import sys
@@ -67,8 +74,16 @@ def invertStr (arr, index, size):
 # Generate random genetic sequence of length 1 million
 nucleobaseList = ["C","T","G","A"]
 
+sys.argv[1:]
+if(len(sys.argv)==1):
+    print "The program requires 1 inputs in the following format: \n"
+    print "python Eval.py genomeID \n"
+    
+    sys.exit()
+filename=sys.argv[1]
+
 # This is the true file without error introduced
-baseFile = open("ref_genome1.txt", "w")
+baseFile = open("ref_"+filename+".txt", "w")
 
 counter = 0
 
@@ -87,12 +102,13 @@ for i in range(0, stringLen):
     baseFile.write(randomBase)
 baseFile.close()
 
-filename="genome1"
 
 # Open file for getting reads
 baseFile = open("ref_"+filename+".txt", "r")
 
 baseFileList = baseFile.readline()
+
+baseFile.close()
 
 ID = hash(baseFileList[:100])
 ID=filename
@@ -124,9 +140,11 @@ for copyLoop in range(0,1):
     
     baseFileList=copyToStr(baseFileList,copyIndex,copyLen[copyLoop])
     baseAnswerFile.write(">COPY\n")
-    baseAnswerFile.write((str)(baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]))
+    baseAnswerFile.write((str)(baseFileList[copyIndex[0]:copyIndex[0]+copyLen[copyLoop]]) + ',')
     for i in range(0, len(copyIndex)):
-        baseAnswerFile.write("," + (str)(copyIndex[i]))
+        baseAnswerFile.write((str)(copyIndex[i]))
+        if i < len(copyIndex) - 1:
+            baseAnswerFile.write(',')
     baseAnswerFile.write("\n")
 
 #Inversions
@@ -213,19 +231,25 @@ for i in range(0, len(delList)):
 # END INSERTS AND DELETIONS
 
 #SNPS
-baseAnswerFile.write(">SNP")
+baseAnswerFile.write(">SNP \n")
 snps = (generateSnps(baseFileList))
 # baseAnswerFile.write((str)(generateSnps(baseFileList)))
 for i in range(0, len(snps)):
-    baseAnswerFile.write("\n" + (str)(snps[i][0])+',')
+    baseAnswerFile.write((str)(snps[i][0])+',')
     baseAnswerFile.write((str)(snps[i][1])+',')
-    baseAnswerFile.write((str)(snps[i][2]))
+    baseAnswerFile.write((str)(snps[i][2])+'\n')
 baseAnswerFile.close()
 
 #READS
 # File to hold reads from 1 million char sequence
 
 readsFile = open("reads_"+filename+".txt", "w")
+
+trueGenome = open("private_"+filename+".txt","w")
+
+trueGenome.write(baseFileList)
+
+trueGenome.close()
 
 for i in range(0, (int)(stringLen*0.15)):
     # First read
