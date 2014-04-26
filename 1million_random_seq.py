@@ -113,8 +113,7 @@ baseFile.close()
 ID = hash(baseFileList[:100])
 ID=filename
 baseAnswerFile = open("ans_"+filename+".txt", "w")
-baseAnswerFile.write(">ID \n")
-baseAnswerFile.write(str(ID))
+baseAnswerFile.write(">"+ str(ID))
 baseAnswerFile.write("\n")
 
 #Copy Numbers
