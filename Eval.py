@@ -162,36 +162,42 @@ def SNPgrade ( stud, key, index):
     return grade(studTot, correct, total)
     #calculate false positives
 
-sys.argv[1:]
-
-if(len(sys.argv)==1):
-    print "The program requires 1 inputs in the following format: \n"
-    print "python Eval.py studentAnswers.txt \n"
+def Eval( answerKey, studentAns):
+    # Open up student answers
+    #studentAns = open(sys.argv[1], "r")
+    studAns = studentAns.readlines()
+    studentAns.close()
     
-    sys.exit()
+    for i in range(0,len(studAns)-1):
+        #if (studAns[i][0:3]==">ID"):
+        if (studAns[i][0]==">"):
+            filename = studAns[i+1]
+            filename=filename.translate(None,'\n>')
+    #answerKey = open("ans_"+filename+".txt", "r")
+    ansKey = answerKey.readlines()
+    answerKey.close()
+    
+    for i in range(0,len(studAns)-1):
+        if (studAns[i][0:5]==">COPY"):
+            copyGrade=COPYgrade(studAns,ansKey,i+1)
+            #print "COPY grade: " + str(copygrade)
+        if (studAns[i][0:10]==">INVERSION"):
+            invGrade=INVgrade(studAns,ansKey,i+1)
+            #print "INVERSIONS grade: "+ str(invGrade)       
+        if (studAns[i][0:7]==">INSERT"):
+            insertGrade =INSgrade(studAns,ansKey,i+1)
+            #print "INSERTIONS grade: "+ str(insertGrade) 
+        if (studAns[i][0:7]==">DELETE"):
+            deleteGrade=DELgrade(studAns,ansKey,i+1)
+            #print "DELETIONS grade: "+ str(deleteGrade)         
+        if (studAns[i][0:4]==">SNP"):
+            snpGrade=SNPgrade(studAns,ansKey,i)
+            #print "SNP grade: "+ str(snpGrade)
+            
+    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
+    return grades
+              
+'''studentAns = open("test.txt", "r")
+answerKey = open("ans_genomeE1.txt", "r")
 
-# Open up student answers
-studentAns = open(sys.argv[1], "r")
-studAns = studentAns.readlines()
-studentAns.close()
-
-for i in range(0,len(studAns)-1):
-    if (studAns[i][0:3]==">ID"):
-        filename = studAns[i+1]
-        filename=filename.translate(None,'\n')
-answerKey = open("ans_"+filename+".txt", "r")
-ansKey = answerKey.readlines()
-answerKey.close()
-
-for i in range(0,len(studAns)-1):
-    if (studAns[i][0:5]==">COPY"):
-        print "COPY grade: " + str(COPYgrade(studAns,ansKey,i+1))
-    if (studAns[i][0:10]==">INVERSION"):
-        print "INVERSIONS grade: "+ str(INVgrade(studAns,ansKey,i+1))       
-    if (studAns[i][0:7]==">INSERT"):
-        print "INSERTIONS grade: "+ str(INSgrade(studAns,ansKey,i+1)) 
-    if (studAns[i][0:7]==">DELETE"):
-        print "DELETIONS grade: "+ str(DELgrade(studAns,ansKey,i+1))         
-    if (studAns[i][0:4]==">SNP"):
-        print "SNP grade: "+ str(SNPgrade(studAns,ansKey,i))
-        
+test= Eval(answerKey,studentAns)'''
