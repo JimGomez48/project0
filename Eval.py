@@ -8,7 +8,7 @@ import sys
 
 # ########################
 #
-# To run: python Eval.py studentAnswers.txt genomeX
+# To run: python Eval.py studentAnswers.txt
 #
 # #####################
 
@@ -165,8 +165,8 @@ def SNPgrade ( stud, key, index):
 sys.argv[1:]
 
 if(len(sys.argv)==1):
-    print "The program requires 2 inputs in the following format: \n"
-    print "python Eval.py studentAnswers.txt genomeX \n"
+    print "The program requires 1 inputs in the following format: \n"
+    print "python Eval.py studentAnswers.txt \n"
     
     sys.exit()
 
@@ -175,7 +175,11 @@ studentAns = open(sys.argv[1], "r")
 studAns = studentAns.readlines()
 studentAns.close()
 
-answerKey = open("ans_"+sys.argv[2]+".txt", "r")
+for i in range(0,len(studAns)-1):
+    if (studAns[i][0:3]==">ID"):
+        filename = studAns[i+1]
+        filename=filename.translate(None,'\n')
+answerKey = open("ans_"+filename+".txt", "r")
 ansKey = answerKey.readlines()
 answerKey.close()
 
