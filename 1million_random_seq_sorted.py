@@ -26,7 +26,7 @@ def copyToStr (arr, index, size):
     arr1=arr[index[0]:index[0]+size]
     #copy the substring into the array
     for i in range(1,len(index)):
-        arr=removeFrmStrM(arr,index[i],len(arr1))
+        arr=removeFrmStrM(arr,index[i],len(arr1)) 
         arr=insertToStr(arr,index[i], arr1)
     return arr
 
