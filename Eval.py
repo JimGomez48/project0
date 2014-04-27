@@ -39,30 +39,46 @@ def findIndex(arr, temp):
 #
 
 def COPYgrade ( stud, key, index):
-    ans=findIndex(key,">COPY")
+    ans=findIndex(key,">COPY")+1
+    tmp=ans
     correct=0
     total=0
-    copynums=1
-    i=index+1
-    while (i < len(stud)-1 and stud[i][0]!='>'): 
-        compynums+=1
-        i+=1
-    ans+=1
+    copynums=0
+    m=index
+    keynums=0
+    studTot=0
+    #Count key copy numbers
+    while (key[tmp][0]!='>'): 
+        total+=len(key[tmp].split(','))-1
+        keynums+=1
+        tmp+=1
+        
+    #Find student copy numbers
+    while (m < len(stud)-1 and stud[m][0]!='>'): 
+        studTot+=len(stud[m].split(','))-1
+        copynums+=1
+        m+=1
+    
+    #for p in range(0,keynums-1):
     ansTemp=key[ans].split(',')
-    studTot=copynums*(len(ansTemp)-1)        
-    while (ans < len(key)-1 and key[ans][0]!='>'):
-        total+=1
-        ansTemp=key[ans].split(',')
-        ans+=1
-        for j in range(index, index+studTot+1):
-            studTemp=stud[j].split(',')
-            if(ansTemp[0]==studTemp[0]):
-                for i in range(1,len(ansTemp)):
+    ans2=ans
+    while (ans2 < len(key)-1 and key[ans2][0]!='>'):
+        done=0
+        ansTemp=key[ans2].split(',')
+        ans2+=1
+        
+        for i in range(1,len(ansTemp)):  
+            studTemp={0,1,1,1,1,1,1,1,1,1,1,1} #make a temp list
+            for j in range(index, index+len(studTemp)+1):
+                studTemp=stud[j].split(',')
+                if(ansTemp[0]==studTemp[0]):
                     for k in range(1, len(studTemp)):
                         if(int(ansTemp[i]) >int(studTemp[k])-5 and int(ansTemp[i]) <int(studTemp[k])+5):
                             correct+=1
+                            done=1
                             break
-    total=(len(ansTemp)-1)*copynums
+                    if(done==1):break
+    
     return grade(studTot, correct, total)    
 
 #criteria to grade the inversion portion
@@ -167,6 +183,11 @@ def Eval( answerKey, studentAns):
     #studentAns = open(sys.argv[1], "r")
     studAns = studentAns.readlines()
     studentAns.close()
+    copyGrade=0
+    invGrade=0
+    insertGrade=0
+    deleteGrade=0
+    snpGrade=0
     
     for i in range(0,len(studAns)-1):
         #if (studAns[i][0:3]==">ID"):
@@ -180,7 +201,7 @@ def Eval( answerKey, studentAns):
     for i in range(0,len(studAns)-1):
         if (studAns[i][0:5]==">COPY"):
             copyGrade=COPYgrade(studAns,ansKey,i+1)
-            #print "COPY grade: " + str(copygrade)
+            #print "COPY grade: " + str(copyGrade)
         if (studAns[i][0:10]==">INVERSION"):
             invGrade=INVgrade(studAns,ansKey,i+1)
             #print "INVERSIONS grade: "+ str(invGrade)       
@@ -196,8 +217,3 @@ def Eval( answerKey, studentAns):
             
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
     return grades
-              
-'''studentAns = open("test.txt", "r")
-answerKey = open("ans_genomeE1.txt", "r")
-
-test= Eval(answerKey,studentAns)'''
