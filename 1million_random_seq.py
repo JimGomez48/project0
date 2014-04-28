@@ -182,7 +182,7 @@ for chrome in range(1,chromosomes+1):
     # Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
     # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
     sectionLen = int(stringLen * 0.001 * 2)
-    for i in range(0, int(0.0005 * stringLen)):
+    for i in range(0, int(stringLen/sectionLen)):
         
         # Make deletions in i-th section
         # Get index to delete from
@@ -268,7 +268,7 @@ for chrome in range(1,chromosomes+1):
             for i in range(50,99):
                 readList+=random.choice(nucleobaseList)              
         
-        readsFile.write("chromosome: "+str(chrome))
+        readsFile.write(str(chrome)+",")
         readsFile.write((str) (readList[:50]))
         readsFile.write(',')
         readsFile.write((str) ( readList[50+randomGap:])) 
