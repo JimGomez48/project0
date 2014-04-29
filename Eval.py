@@ -5,10 +5,9 @@ Created on Apr 22, 2014
 '''
 
 import sys
-
 # ########################
 #
-# To run: python Eval.py studentAnswers.txt
+# To run: python Eval.py studentAnswers.txt genomeX
 #
 # #####################
 
@@ -24,7 +23,7 @@ def grade(studTot, corr, tot):
 def findIndex(arr, temp):
     for i in range(0,len(arr)):
         if ( arr[i][0:len(temp)]==temp):
-            return i      
+            return i            
         
 #criteria to grade the copy portion
 #stud contains the student answers
@@ -49,30 +48,30 @@ def COPYgrade ( stud, key, index):
     studTot=0
     #Count key copy numbers
     while (key[tmp][0]!='>'): 
-        total+=len(key[tmp].split(','))-1
+        total+=len(key[tmp].split(','))-2
         keynums+=1
         tmp+=1
         
     #Find student copy numbers
     while (m < len(stud)-1 and stud[m][0]!='>'): 
-        studTot+=len(stud[m].split(','))-1
+        studTot+=len(stud[m].split(','))-2
         copynums+=1
         m+=1
     
     #for p in range(0,keynums-1):
     ansTemp=key[ans].split(',')
     ans2=ans
-    while (ans2 < len(key)-1 and key[ans2][0]!='>'):
+    while (ans2 < len(key) and key[ans2][0]!='>'):
         done=0
         ansTemp=key[ans2].split(',')
         ans2+=1
         
-        for i in range(1,len(ansTemp)):  
+        for i in range(2,len(ansTemp)):  
             studTemp=[0]*1000 #make a temp list
             for j in range(index, index+len(studTemp)+1):
                 studTemp=stud[j].split(',')
-                if(ansTemp[0]==studTemp[0]):
-                    for k in range(1, len(studTemp)):
+                if(ansTemp[0]==studTemp[0] and ansTemp[1]==studTemp[1]):
+                    for k in range(2, len(studTemp)):
                         if(int(ansTemp[i]) >int(studTemp[k])-5 and int(ansTemp[i]) <int(studTemp[k])+5):
                             correct+=1
                             done=1
@@ -87,22 +86,48 @@ def INVgrade ( stud, key, index):
     correct=0
     total=0
     studTot=0
-    i=index+1
-    while (i < len(stud)-1 and stud[i][0]!='>'): 
+    i=index
+    while (i < len(stud) and stud[i][0]!='>'): 
         studTot+=1
         i+=1
     ans+=1
-    while (ans < len(key)-1 and key[ans][0]!='>'):
+    
+    # Sort Inversions
+    sortStud = []
+    # Split each line into 3 parts
+    for k in range(index, index+studTot):
+        tempSort = stud[k].split(',')
+        tempSort[2] = int(tempSort[2])
+        sortStud.append(tempSort)
+        
+    # Sort by increasing index (the third part of each line)
+    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][2]))
+    
+    # After sorting, combine the parts together again into one string line
+    for k in range(0, len(sortStud)):
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
+        
+    # Copy the sorted section back into the student answer array
+    stud[index:index+studTot] = sortStud
+    tmpIndex=index-1   
+    while (ans < len(key) and key[ans][0]!='>'):
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
-        for j in range(index, index+studTot+1):
-            studTemp=stud[j].split(',')
+        index=tmpIndex+1
+        
+        studTemp = stud[index].split(',')
+        
+        while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
+            if(studTemp[0][0]=='>'): print "TEST"
+            studTemp = stud[index].split(',')
             
-            if(ansTemp[0]==studTemp[0] and int(ansTemp[1]) >int(studTemp[1])-5 and int(ansTemp[1]) <int(studTemp[1])+5):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
                 correct+=1
-                break
-            
+                tmpIndex=index
+                break            
+            index += 1     
+      
     return grade(studTot, correct, total)    
 
 #criteria to grade the insertion portion
@@ -111,21 +136,45 @@ def INSgrade ( stud, key, index):
     correct=0
     total=0
     studTot=0
-    i=index+1
-    while (i < len(stud)-1 and stud[i][0]!='>'): 
+    i=index
+    while (i < len(stud) and stud[i][0]!='>'): 
         studTot+=1
         i+=1
     ans+=1
-    while (ans < len(key)-1 and key[ans][0]!='>'):
+
+    # Sort Insertions
+    sortStud = []
+    # Split each line into 3 parts
+    for k in range(index, index+studTot):
+        tempSort = stud[k].split(',')
+        tempSort[2] = int(tempSort[2])
+        sortStud.append(tempSort)
+        
+    # Sort by increasing index (the second part of each line)
+    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][2]))
+    
+    # After sorting, combine the parts together again into one string line
+    for k in range(0, len(sortStud)):
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
+        
+    # Copy the sorted section back into the student answer array
+    stud[index:index+studTot] = sortStud
+
+    tmpIndex=index-1
+    while (ans < len(key) and key[ans][0]!='>'):   
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
-        for j in range(index, index+studTot+1):
-            studTemp=stud[j].split(',')
-            
-            if(ansTemp[0]==studTemp[0] and int(ansTemp[1]) >int(studTemp[1])-5 and int(ansTemp[1]) <int(studTemp[1])+5):
+        index=tmpIndex+1
+        
+        studTemp = stud[index].split(',')
+        while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
                 correct+=1
+                tmpIndex=index
                 break
+            
+            index += 1
             
     return grade(studTot, correct, total)   
 
@@ -135,21 +184,45 @@ def DELgrade ( stud, key, index):
     correct=0
     total=0
     studTot=0
-    i=index+1
-    while (i < len(stud)-1 and stud[i][0]!='>'): 
+    i=index
+    while (i < len(stud) and stud[i][0]!='>'): 
         studTot+=1
         i+=1
     ans+=1
-    while (ans < len(key)-1 and key[ans][0]!='>'):
+
+    # Sort Insertions
+    sortStud = []
+    # Split each line into 3 parts
+    for k in range(index, index+studTot):
+        tempSort = stud[k].split(',')
+        tempSort[2] = int(tempSort[2])
+        sortStud.append(tempSort)
+        
+    # Sort by increasing index (the second part of each line)
+    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][2]))
+    
+    # After sorting, combine the parts together again into one string line
+    for k in range(0, len(sortStud)):
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
+        
+    # Copy the sorted section back into the student answer array
+    stud[index:index+studTot] = sortStud
+
+    tmpIndex=index-1
+    while (ans < len(key) and key[ans][0]!='>'):   
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
-        for j in range(index, index+studTot+1):
-            studTemp=stud[j].split(',')
-            
-            if(ansTemp[0]==studTemp[0] and int(ansTemp[1]) >int(studTemp[1])-5 and int(ansTemp[1]) <int(studTemp[1])+5):
+        index=tmpIndex+1
+        
+        studTemp = stud[index].split(',')
+        while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
                 correct+=1
+                tmpIndex=index
                 break
+            
+            index += 1
             
     return grade(studTot, correct, total)
 
@@ -159,26 +232,49 @@ def SNPgrade ( stud, key, index):
     correct=0
     total=0
     studTot=0
-    i=index+1
-    while (i < len(stud)-1 and stud[i][0]!='>'): 
+    i=index
+    while (i < len(stud) and stud[i][0]!='>'): 
         studTot+=1
         i+=1
     ans+=1
-    while (ans < len(key)-1 and key[ans][0]!='>'):
+    # Sort SNPs
+    sortStud = []
+    # Split each line into 3 parts
+    for k in range(index, index+studTot):
+        tempSort = stud[k].split(',')
+        tempSort[3] = int(tempSort[3])
+        sortStud.append(tempSort)
+        
+    # Sort by increasing index (the second part of each line)
+    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][3]))
+    
+    # After sorting, combine the parts together again into one string line
+    for k in range(0, len(sortStud)):
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + sortStud[k][2] + "," + str(sortStud[k][3])
+        
+    # Copy the sorted section back into the student answer array
+    stud[index:index+studTot] = sortStud
+          
+    tmpIndex=index-1
+    while (ans < len(key) and key[ans][0]!='>'):
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
-        for j in range(index, index+studTot+1):
-            studTemp=stud[j].split(',')
-            
-            if(ansTemp[0]==studTemp[0] and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
+        index=tmpIndex+1
+        
+        studTemp = stud[index].split(',')    
+        while(studTemp[0][0]!='>' and int(studTemp[3])<=int(ansTemp[3]) and index<len(stud) and studTemp[0] == ansTemp[0]):
+            studTemp = stud[index].split(',')
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >int(studTemp[3])-5 and int(ansTemp[3]) <int(studTemp[3])+5):
                 correct+=1
+                tmpIndex=index
                 break
-            
+            index += 1
     return grade(studTot, correct, total)
     #calculate false positives
 
 def Eval( answerKey, studentAns):
+    
     # Open up student answers
     #studentAns = open(sys.argv[1], "r")
     studAns = studentAns.readlines()
@@ -212,8 +308,14 @@ def Eval( answerKey, studentAns):
             deleteGrade=DELgrade(studAns,ansKey,i+1)
             #print "DELETIONS grade: "+ str(deleteGrade)         
         if (studAns[i][0:4]==">SNP"):
-            snpGrade=SNPgrade(studAns,ansKey,i)
+            snpGrade=SNPgrade(studAns,ansKey,i+1)
             #print "SNP grade: "+ str(snpGrade)
             
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
     return grades
+
+
+#studentAns = open("test.txt", "r")
+#answerKey = open("ans_genomeE2.txt", "r")
+
+test= Eval(answerKey,studentAns)
