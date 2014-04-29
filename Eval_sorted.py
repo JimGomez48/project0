@@ -62,17 +62,18 @@ def COPYgrade ( stud, key, index):
     #for p in range(0,keynums-1):
     ansTemp=key[ans].split(',')
     ans2=ans
-    while (ans2 < len(key)-1 and key[ans2][0]!='>'):
+    while (ans2 < len(key) and key[ans2][0]!='>'):
         done=0
         ansTemp=key[ans2].split(',')
+        print ansTemp
         ans2+=1
         
-        for i in range(1,len(ansTemp)):  
+        for i in range(2,len(ansTemp)):  
             studTemp=[0]*1000 #make a temp list
             for j in range(index, index+len(studTemp)+1):
                 studTemp=stud[j].split(',')
                 if(ansTemp[0]==studTemp[0]):
-                    for k in range(1, len(studTemp)):
+                    for k in range(2, len(studTemp)):
                         if(int(ansTemp[i]) >int(studTemp[k])-5 and int(ansTemp[i]) <int(studTemp[k])+5):
                             correct+=1
                             done=1
@@ -96,20 +97,21 @@ def INVgrade ( stud, key, index):
     # Sort Inversions
     sortStud = []
     # Split each line into 3 parts
-    for k in range(index, index+studTot-1):
+    for k in range(index, index+studTot):
         tempSort = stud[k].split(',')
-        tempSort[1] = int(tempSort[1])
+        tempSort[2] = int(tempSort[2])
         sortStud.append(tempSort)
+        print stud[k]
         
     # Sort by increasing index (the third part of each line)
-    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][1])
+    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][2])
     
     # After sorting, combine the parts together again into one string line
     for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + str(sortStud[k][1])
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
         
     # Copy the sorted section back into the student answer array
-    stud[index:index+studTot-1] = sortStud
+    stud[index:index+studTot] = sortStud
         
     while (ans < len(key) and key[ans][0]!='>'):
         total+=1
@@ -117,7 +119,7 @@ def INVgrade ( stud, key, index):
         ans+=1
         
         studTemp = stud[index].split(',')
-        if(ansTemp[0]==studTemp[0] and int(ansTemp[1]) >int(studTemp[1])-5 and int(ansTemp[1]) <int(studTemp[1])+5):
+        if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
             correct+=1
             
         index += 1
@@ -146,28 +148,28 @@ def INSgrade ( stud, key, index):
     # Sort Insertions
     sortStud = []
     # Split each line into 3 parts
-    for k in range(index, index+studTot-1):
+    for k in range(index, index+studTot):
         tempSort = stud[k].split(',')
-        tempSort[1] = int(tempSort[1])
+        tempSort[2] = int(tempSort[2])
         sortStud.append(tempSort)
         
     # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][1])
+    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][2])
     
     # After sorting, combine the parts together again into one string line
     for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + str(sortStud[k][1])
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
         
     # Copy the sorted section back into the student answer array
-    stud[index:index+studTot-1] = sortStud
+    stud[index:index+studTot] = sortStud
 
-    while (ans < len(key) and key[ans][0]!='>'):
+    while (ans < len(key) and key[ans][0]!='>'):   
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
-        
+     
         studTemp = stud[index].split(',')
-        if(ansTemp[0]==studTemp[0] and int(ansTemp[1]) >int(studTemp[1])-5 and int(ansTemp[1]) <int(studTemp[1])+5):
+        if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
             correct+=1
             
         index += 1
@@ -193,31 +195,31 @@ def DELgrade ( stud, key, index):
         i+=1
     ans+=1
 
-    # Sort Deletes
+    # Sort Insertions
     sortStud = []
     # Split each line into 3 parts
-    for k in range(index, index+studTot-1):
+    for k in range(index, index+studTot):
         tempSort = stud[k].split(',')
-        tempSort[1] = int(tempSort[1])
+        tempSort[2] = int(tempSort[2])
         sortStud.append(tempSort)
         
     # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][1])
+    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][2])
     
     # After sorting, combine the parts together again into one string line
     for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + str(sortStud[k][1])
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
         
     # Copy the sorted section back into the student answer array
-    stud[index:index+studTot-1] = sortStud
+    stud[index:index+studTot] = sortStud
 
-    while (ans < len(key) and key[ans][0]!='>'):
+    while (ans < len(key) and key[ans][0]!='>'):   
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
-        
+     
         studTemp = stud[index].split(',')
-        if(ansTemp[0]==studTemp[0] and int(ansTemp[1]) >int(studTemp[1])-5 and int(ansTemp[1]) <int(studTemp[1])+5):
+        if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
             correct+=1
             
         index += 1
@@ -245,30 +247,28 @@ def SNPgrade ( stud, key, index):
     # Sort SNPs
     sortStud = []
     # Split each line into 3 parts
-    for k in range(index, index+studTot-1):
+    for k in range(index, index+studTot):
         tempSort = stud[k].split(',')
-        tempSort[2] = int(tempSort[2])
+        tempSort[3] = int(tempSort[3])
         sortStud.append(tempSort)
         
     # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][2])
+    sortStud = sorted(sortStud, key=lambda sortStud: sortStud[:][3])
     
     # After sorting, combine the parts together again into one string line
     for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
+        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + sortStud[k][2] + "," + str(sortStud[k][3])
         
     # Copy the sorted section back into the student answer array
-    stud[index:index+studTot-1] = sortStud
+    stud[index:index+studTot] = sortStud
      
     while (ans < len(key) and key[ans][0]!='>'):
-        #print key[ans]
-        #print stud[index]
         total+=1
         ansTemp=key[ans].split(',')
         ans+=1
         
         studTemp = stud[index].split(',')
-        if(ansTemp[0]==studTemp[0] and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
+        if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >int(studTemp[3])-5 and int(ansTemp[3]) <int(studTemp[3])+5):
             correct+=1
             
         index += 1
