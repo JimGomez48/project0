@@ -77,8 +77,10 @@ if(len(sys.argv)==1):
     sys.exit()
 filename=sys.argv[1]
 
-chromosomes =1
-stringLen=1000000
+chromosomes =2 # 46 for 3 billion
+stringLen=1000000 # about 67 million for the 3 billion genome
+private=1
+
 
 # This is the true file without mutations introduced
 #This is done only for random string outputs
@@ -111,7 +113,7 @@ fullSNP=[]
 
 # Open file for getting reads
 baseFile = open("ref_"+filename+".txt", "r")
-
+if(private==1): baseFile2= open("private_"+filename+".txt", "w")
 for chrome in range(1,chromosomes+1):
     counter = 0
     
@@ -229,10 +231,11 @@ for chrome in range(1,chromosomes+1):
     # Sort SNPs by increasing index
     snps = sorted(snps, key=lambda snps: snps[:][2])
     fullSNP.append(snps)
+    if(private==1): baseFile2.write(str(baseFileList))
     
     #READS
     # File to hold reads from 1 million char sequence
-    
+
     for i in range(0, (int)(stringLen*0.15)):
         # First read
         startIndexPart1 = (int(random.random()*(stringLen - 210) ))
@@ -312,4 +315,5 @@ for i in range(0,chromosomes):
             
 baseAnswerFile.close()
 readsFile.close()
+baseFile2.close()
 print "Program Complete"
