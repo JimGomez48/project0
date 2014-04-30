@@ -119,14 +119,13 @@ def INVgrade ( stud, key, index):
         studTemp = stud[index].split(',')
         
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(studTemp[0][0]=='>'): print "TEST"
-            studTemp = stud[index].split(',')
-            
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
                 correct+=1
                 tmpIndex=index
-                break            
-            index += 1     
+                break     
+            tmpIndex=index
+            index += 1
+            studTemp = stud[index].split(',')
       
     return grade(studTot, correct, total)    
 
@@ -166,15 +165,15 @@ def INSgrade ( stud, key, index):
         ansTemp=key[ans].split(',')
         ans+=1
         index=tmpIndex+1
-        
         studTemp = stud[index].split(',')
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
                 correct+=1
                 tmpIndex=index
                 break
-            
+            tmpIndex=index
             index += 1
+            studTemp = stud[index].split(',')
             
     return grade(studTot, correct, total)   
 
@@ -221,8 +220,9 @@ def DELgrade ( stud, key, index):
                 correct+=1
                 tmpIndex=index
                 break
-            
+            tmpIndex=index
             index += 1
+            studTemp = stud[index].split(',')
             
     return grade(studTot, correct, total)
 
@@ -268,7 +268,8 @@ def SNPgrade ( stud, key, index):
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >int(studTemp[3])-5 and int(ansTemp[3]) <int(studTemp[3])+5):
                 correct+=1
                 tmpIndex=index
-                break
+                break      
+            tmpIndex=index
             index += 1
     return grade(studTot, correct, total)
     #calculate false positives
@@ -297,25 +298,25 @@ def Eval( answerKey, studentAns):
     for i in range(0,len(studAns)-1):
         if (studAns[i][0:5]==">COPY"):
             copyGrade=COPYgrade(studAns,ansKey,i+1)
-            #print "COPY grade: " + str(copyGrade)
+            print "COPY grade: " + str(copyGrade)
         if (studAns[i][0:10]==">INVERSION"):
             invGrade=INVgrade(studAns,ansKey,i+1)
-            #print "INVERSIONS grade: "+ str(invGrade)       
+            print "INVERSIONS grade: "+ str(invGrade)       
         if (studAns[i][0:7]==">INSERT"):
             insertGrade =INSgrade(studAns,ansKey,i+1)
-            #print "INSERTIONS grade: "+ str(insertGrade) 
+            print "INSERTIONS grade: "+ str(insertGrade) 
         if (studAns[i][0:7]==">DELETE"):
             deleteGrade=DELgrade(studAns,ansKey,i+1)
-            #print "DELETIONS grade: "+ str(deleteGrade)         
+            print "DELETIONS grade: "+ str(deleteGrade)         
         if (studAns[i][0:4]==">SNP"):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
-            #print "SNP grade: "+ str(snpGrade)
+            print "SNP grade: "+ str(snpGrade)
             
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
     return grades
 
 
-#studentAns = open("test.txt", "r")
-#answerKey = open("ans_genomeE2.txt", "r")
+studentAns = open("myanswers_long.txt", "r")
+answerKey = open("myanswers.txt", "r")
 
 test= Eval(answerKey,studentAns)
