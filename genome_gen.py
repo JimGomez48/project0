@@ -133,37 +133,27 @@ if len(sys.argv) < 4:
     # print "python chromosomes.py genomeID \n"
     sys.exit()
 
-filename = sys.argv[1]
+genome_id = str(sys.argv[1])
+num_chromosomes = int(sys.argv[2])
+chromosome_size = int(sys.argv[3]) * 1000000
+print "\ngenome-ID:\t" + genome_id + "\nnum-chroms:\t" + str(num_chromosomes) + \
+      "\nchrom-size:\t" + str(chromosome_size) + "\n"
+
 
 chromosomes = 2  # 46 for 3 billion
 stringLen = 1000000  # about 67 million for the 3 billion genome
 private = 1
 
-
-# This is the true file without mutations introduced
-# This is done only for random string outputs
-# For the human genome, this part can be left out completely
-# baseFile = open("ref_" + filename + ".txt", "w")
-# print "Generating the reference GENOME..."
-# for i in range(1, chromosomes * stringLen + 1):
-#     randomBase = random.choice(nucleobaseList)
-#     baseFile.write(randomBase)
-#     if i % stringLen == 0:
-#         baseFile.write("\n")
-#
-# baseFile.close()
-# print "Reference genome COMPLETE"
-
-baseFile = generate_ref_genome(filename, chromosomes, stringLen)
+baseFile = generate_ref_genome(genome_id, chromosomes, stringLen)
 
 #filename="genome1"
 
-baseAnswerFile = open("ans_" + filename + ".txt", "w")
+baseAnswerFile = open("ans_" + genome_id + ".txt", "w")
 baseAnswerFile.write(">")
-baseAnswerFile.write(str(filename))
+baseAnswerFile.write(str(genome_id))
 baseAnswerFile.write("\n")
 
-readsFile = open("reads_" + filename + ".txt", "w")
+readsFile = open("reads_" + genome_id + ".txt", "w")
 
 fullCOPYseq = []
 fullCOPY = []
@@ -174,8 +164,8 @@ fullDEL = []
 fullSNP = []
 
 # Open file for getting reads
-baseFile = open("ref_" + filename + ".txt", "r")
-if private == 1: baseFile2 = open("private_" + filename + ".txt", "w")
+baseFile = open("ref_" + genome_id + ".txt", "r")
+if private == 1: baseFile2 = open("private_" + genome_id + ".txt", "w")
 for chrome in range(1, chromosomes + 1):
     counter = 0
 
