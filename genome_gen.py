@@ -43,7 +43,6 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     Generates a random reference genome with the specified number of chromosomes,
     each of length length_chromosome
     """
-
     print "Generating reference genome..."
     with open("ref_" + genome_id + ".txt", "w") as ref_file:
         ref_file.write(">" + str(genome_id))
@@ -155,7 +154,9 @@ fullSNP = []
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
-if private: baseFile2 = open("private_" + genome_id + ".txt", "w")
+if private:
+    baseFile2 = open("private_" + genome_id + ".txt", "w")
+    baseFile2.write(">" + genome_id + "\n")
 
 readsFile = open("reads_" + genome_id + ".txt", "w")
 # skip the first two '>' labels in the ref genome file
@@ -180,7 +181,8 @@ for chromosome in range(1, num_chromosomes + 1):
     print "\tGenerating copies..."
     for copyLoop in range(0, 1):
         copyLen.append(random.randint(20, 50))
-        copyIndex.append(int(random.random() * (chromosome_size - copyLen[copyLoop])))
+        copyIndex.append(
+            int(random.random() * (chromosome_size - copyLen[copyLoop])))
 
         #0.001% of the time the string is copied
         for i in range(0, int(chromosome_size * 0.00001)):
@@ -284,7 +286,18 @@ for chromosome in range(1, num_chromosomes + 1):
 
     fullSNP.append(snps)
     if private:
-        baseFile2.write(str(baseFileList))
+        print "\tWriting to private genome..."
+        baseFile2.write(">chr" + str(chromosome) + "\n")
+        counter = 0
+        write_newline = False
+        for c in baseFileList:
+            if write_newline:
+                baseFile2.write("\n")
+                write_newline = False
+            baseFile2.write(str(c))
+            counter += 1
+            if counter % 80 is 0:
+                write_newline = True
 
     #READS
     # File to hold reads from 1 million char sequence
@@ -382,4 +395,4 @@ for i in range(0, num_chromosomes):
 baseAnswerFile.close()
 readsFile.close()
 baseFile2.close()
-print "Genome Generation Complete"
+print "DONE"
