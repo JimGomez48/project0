@@ -159,7 +159,7 @@ if private:
     baseFile2.write(">" + genome_id + "\n")
 
 readsFile = open("reads_" + genome_id + ".txt", "w")
-readsFile.write(">" + str(genome_id) + "\n")
+readsFile.write(">" + genome_id + "\n")
 # skip the first two '>' labels in the ref genome file
 baseFile.readline()
 baseFile.readline()
@@ -299,10 +299,12 @@ for chromosome in range(1, num_chromosomes + 1):
             counter += 1
             if counter % 80 is 0:
                 write_newline = True
-
+        
+        baseFile2.write("\n")
     #READS
     # File to hold reads from 1 million char sequence
     print "\tGenerating reads..."
+    readsFile.write(">chr" + str(chromosome) + "\n")
     for i in range(0, int(chromosome_size * 0.15)):
         # First read
         startIndexPart1 = (int(random.random() * (chromosome_size - 210)))
@@ -339,11 +341,13 @@ for chromosome in range(1, num_chromosomes + 1):
                 readList += '-'
             for i in range(50, 99):
                 readList += random.choice(nucleo_base_list)
-
-        readsFile.write(str(chromosome) + ",")
+        
+        for i in range(0, 10):
+            readList += random.choice(nucleo_base_list)    
+            
         readsFile.write(str(readList[:50]))
         readsFile.write(',')
-        readsFile.write(str(readList[50 + randomGap:]))
+        readsFile.write(str(readList[50 + randomGap:randomGap+100]))
         readsFile.write("\n")
 
 
