@@ -215,6 +215,7 @@ for chromosome in range(1, num_chromosomes + 1):
         for i in range(0, len(copyIndex)):
             if temp + invLen > copyIndex[i] and temp < copyIndex[i] + copyLen[i]:
                 write = 0
+                invLoop-=1
                 break
         if write == 1:
             actualInv += 1
@@ -223,6 +224,7 @@ for chromosome in range(1, num_chromosomes + 1):
             invIndex.append([0, temp])
             orig = invert_str(baseFileList, invIndex[actualInv - 1][1], invLen)
             invIndex[invLoop][0] = orig
+            
 
     # Sort invIndex by the index of the inversion
     invIndex = sorted(invIndex, key=lambda invIndex: invIndex[:][1])
