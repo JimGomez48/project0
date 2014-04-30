@@ -159,6 +159,7 @@ if private:
     baseFile2.write(">" + genome_id + "\n")
 
 readsFile = open("reads_" + genome_id + ".txt", "w")
+readsFile.write(">" + str(genome_id) + "\n")
 # skip the first two '>' labels in the ref genome file
 baseFile.readline()
 baseFile.readline()
