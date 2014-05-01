@@ -6,7 +6,7 @@ Created on Apr 14, 2014
 
 import random
 import sys
-
+import re
 
 nucleo_base_list = ["C", "T", "G", "A"]
 
@@ -174,7 +174,8 @@ for chromosome in range(1, num_chromosomes + 1):
         if ">" in line:
             break
         baseFileList += str(line)
-    baseFileList = baseFileList.translate(None, '\n')
+    #baseFileList = baseFileList.translate('\n')
+    baseFileList=baseFileList.replace("\n","")
 
     #Copy Numbers
     #Sequence of random length between 20-50
