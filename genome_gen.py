@@ -44,18 +44,19 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     each of length length_chromosome
     """
     print "Generating reference genome..."
-    with open("ref_" + genome_id + ".txt", "w") as ref_file:
-        ref_file.write(">" + str(genome_id))
+    ref_file = open("ref_" + genome_id + ".txt", "w")
+    ref_file.write(">" + str(genome_id))
 
-        for i in range(1, num_chromosomes + 1):
-            ref_file.write("\n>chr" + str(i) + "\n")
-            for j in range(0, length_chromosome):
-                # write a maximum of 80 alleles per line
-                if j != 0 and j % 80 == 0:
-                    ref_file.write("\n")
-                allele = random.choice(nucleo_base_list)
-                ref_file.write(allele)
+    for i in range(1, num_chromosomes + 1):
+        ref_file.write("\n>chr" + str(i) + "\n")
+        for j in range(0, length_chromosome):
+            # write a maximum of 80 alleles per line
+            if j != 0 and j % 80 == 0:
+                ref_file.write("\n")
+            allele = random.choice(nucleo_base_list)
+            ref_file.write(allele)
     print "Reference genome complete"
+    ref_file.close()
 
     return ref_file
 
