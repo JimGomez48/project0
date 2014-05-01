@@ -215,7 +215,7 @@ for chromosome in range(1, num_chromosomes + 1):
         invLen = random.randint(20, 50)
 
         for i in range(0, len(copyIndex)):
-            if temp + invLen > copyIndex[i] and temp < copyIndex[i] + copyLen[i]:
+            if ((temp > copyIndex[i] and temp < copyIndex[i] + copyLen[i]) or (temp +invLen > copyIndex[i] and temp+invLen < copyIndex[i] + copyLen[i])):
                 write = 0
                 invLoop-=1
                 break
@@ -223,9 +223,8 @@ for chromosome in range(1, num_chromosomes + 1):
             actualInv += 1
             # baseFileList=
             # orig =
-            invIndex.append([0, temp])
-            orig = invert_str(baseFileList, invIndex[actualInv - 1][1], invLen)
-            invIndex[invLoop][0] = orig
+            orig = invert_str(baseFileList, temp, invLen)
+            invIndex.append([orig, temp])
             
 
     # Sort invIndex by the index of the inversion
