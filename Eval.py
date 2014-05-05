@@ -261,8 +261,8 @@ def SNPgrade ( stud, key, index):
         ansTemp=key[ans].split(',')
         ans+=1
         index=tmpIndex+1
-        
-        studTemp = stud[index].split(',')    
+        if(index<len(stud)):
+            studTemp = stud[index].split(',')    
         while(studTemp[0][0]!='>' and int(studTemp[3])<=int(ansTemp[3]) and index<len(stud) and studTemp[0] == ansTemp[0]):
             studTemp = stud[index].split(',')
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >int(studTemp[3])-5 and int(ansTemp[3]) <int(studTemp[3])+5):
@@ -316,7 +316,7 @@ def Eval( answerKey, studentAns):
     return grades
 
 
-studentAns = open("myanswers_long.txt", "r")
-answerKey = open("myanswers.txt", "r")
+studentAns = open("test.txt", "r")
+answerKey = open("ans_genomeH1.txt", "r")
 
 test= Eval(answerKey,studentAns)
