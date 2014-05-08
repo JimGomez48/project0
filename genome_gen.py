@@ -84,7 +84,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
 #     # TODO
 #     return
 
-
+'''
 def generate_snps(genome):
     """
     Generates snps at random indeces in the array and returns a list
@@ -113,7 +113,7 @@ def generate_snps(genome):
     # Sort SNPs by increasing index
     snp_list = sorted(snp_list, key=lambda snps: snps[:][2])
 
-    return snp_list
+    return snp_list'''
 
 
 def invert_str(arr, index, size):
@@ -286,7 +286,44 @@ for chromosome in range(1, num_chromosomes + 1):
     # END INSERTS AND DELETIONS
 
     #SNPS
-    snps = (generate_snps(baseFileList))
+    """
+        Generates snps at random indeces in the array and returns a list
+        of the indeces of snps in sorted ascending order
+    """
+
+    count = 0.0
+    snp_list = []
+    tempList=baseFileList
+    import difflib
+    
+    print "\tGenerating SNPs..."
+    while (count / len(baseFileList)) < .003:
+        index = random.randint(0, len(baseFileList))
+        if baseFileList[index] == "A":
+            tp="A"
+            s = random.choice(["C", "G", "T"])
+        elif baseFileList[index] == "C":
+            tp="C"
+            s = random.choice(["A", "G", "T"])
+        elif baseFileList[index] == "G":
+            tp="G"
+            s = random.choice(["A", "C", "T"])
+        elif baseFileList[index] == "T":
+            tp="T"
+            s = random.choice(["A", "C", "G"])
+
+        baseFileList=remove_from_string(baseFileList, index)
+        baseFileList=insert_to_string(baseFileList, index, s)
+        snp_list.append([tp, s, index])
+        count += 1
+
+    # Sort SNPs by increasing index
+    snp_list = sorted(snp_list, key=lambda snps: snps[:][2])
+    
+    s = difflib.SequenceMatcher(a=tempList, b=baseFileList)
+    for block in s.get_matching_blocks():
+        print "match at a[%d] and b[%d] of length %d" % block    
+    snps = snp_list
 
     fullSNP.append(snps)
     if private:
@@ -345,8 +382,9 @@ for chromosome in range(1, num_chromosomes + 1):
             for i in range(50, 99):
                 readList += random.choice(nucleo_base_list)
         
-        for i in range(0, 10):
-            readList += random.choice(nucleo_base_list)    
+        #for i in range(0, 10):
+        #    readList += random.choice(nucleo_base_list)    
+            
             
         readsFile.write(str(readList[:50]))
         readsFile.write(',')
