@@ -37,6 +37,16 @@ def copy_to_string(arr, index, size):
         arr = insert_to_string(arr, index[i], arr1)
     return arr
 
+def generate_STR(length):    
+    STR=[]
+    for i in range(int(length*0.0001)):
+        seqLen=random.randint(2,5)
+        copies=random.randint(10,20)        
+        temp=''
+        for i in range(seqLen):
+            temp += random.choice(nucleo_base_list)        
+        STR.append([temp,temp*copies])
+    return STR
 
 def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     """
@@ -47,87 +57,77 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     ref_file = open("ref_" + genome_id + ".txt", "w")
     ref_file.write(">" + str(genome_id))
 
+    genome=[]
+    STR=generate_STR(length_chromosome);
+    STRpos=[]
+    genome=''
+    #
+    #    
+    #Generate the string, then write it
     for i in range(1, num_chromosomes + 1):
         ref_file.write("\n>chr" + str(i) + "\n")
+        #Generate the string
+        for j in range(0, length_chromosome):
+            genome+=random.choice(nucleo_base_list)
+               
+        for j in range(len(STR)):
+            tmp=random.randint(0,length_chromosome-len(STR[j]))
+            
+            genome=  remove_range_from_string(genome, tmp, len(STR[j][1]))
+            genome = insert_to_string(genome, tmp, str(STR[j][1]) )           
+            STRpos.append([tmp,STR[j][0],STR[j][1]])
+        
         for j in range(0, length_chromosome):
             # write a maximum of 80 alleles per line
             if j != 0 and j % 80 == 0:
                 ref_file.write("\n")
-            allele = random.choice(nucleo_base_list)
-            ref_file.write(allele)
+            ref_file.write(genome[j])             
+    
+            
     print "Reference genome complete"
     ref_file.close()
 
-    return ref_file
+    return (ref_file,STRpos)
 
-
-# def generate_copies(genome):
-#     print "Generating copies..."
-#     # TODO
-#     return
-#
-#
-# def generate_inversions(genome):
-#     print "\tGenerating inversions..."
-#     # TODO
-#     return
-#
-#
-# def generate_insertions(genome):
-#     print "\tGenerating insertions..."
-#     # TODO
-#     return
-#
-#
-# def generate_deletions(genome):
-#     print "\tGenerating deletions..."
-#     # TODO
-#     return
-
-'''
-def generate_snps(genome):
-    """
-    Generates snps at random indeces in the array and returns a list
-    of the indeces of snps in sorted ascending order
-    """
-
-    count = 0.0
-    snp_list = []
-    print "\tGenerating SNPs..."
-    while (count / len(genome)) < .003:
-        index = random.randint(0, len(genome))
-        if genome[index] == "A":
-            s = random.choice(["C", "G", "T"])
-        elif genome[index] == "C":
-            s = random.choice(["A", "G", "T"])
-        elif genome[index] == "G":
-            s = random.choice(["A", "C", "T"])
-        elif genome[index] == "T":
-            s = random.choice(["A", "C", "G"])
-
-        remove_from_string(genome, index)
-        insert_to_string(genome, index, s)
-        snp_list.append([genome[index], s, index])
-        count += 1
-
-    # Sort SNPs by increasing index
-    snp_list = sorted(snp_list, key=lambda snps: snps[:][2])
-
-    return snp_list'''
 
 
 def invert_str(arr, index, size):
     arr1 = arr[index:index + size]
     arr = remove_range_from_string(arr, index, size)
     arr = insert_to_string(arr, index, arr1[::-1])
-    return (arr,arr1[::-1])
+    return arr
 
+def invert_strS(arr, index, size):
+    arr1 = arr[index:index + size]
+    return arr1[::-1]
 
 def usage(name):
     print "USAGE: python " + str(
         name) + " <genome_id> <#chromosomes> <chromosome_size x 1M>"
 
+def modSTR(genome, STR):
+    fullSTR=[]
+    for j in range(len(STR)):
+        tmp=random.randint(-2,2)
+        INS=[]
+        DEL=[]
+        tmpStr='' 
 
+        if(tmp>0):
+            genome = insert_to_string(genome, int(STR[j][0]), tmp*str(STR[j][1]))  
+            DEL.append([tmp*str(STR[j][1]), str(STR[j][0])])
+            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(str(STR[j][2])+tmp*str(STR[j][1]))])       
+        elif(tmp<0):
+            for j in range(-tmp):
+                tmpStr+=random.choice(nucleo_base_list)            
+            genome = remove_range_from_string(genome, int(STR[j][0]), tmp*len(STR[j][1]))
+            genome = insert_to_string(genome, tmp, tmpStr)
+            INS.append([tmpStr,str(STR[j][0])])
+            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2][-tmp*len(STR[j][1]):])])
+            
+    return genome, INS, DEL, fullSTR
+        
+        
 ################################# START OF SCRIPT ###################################
 if len(sys.argv) < 4:
     usage(sys.argv[0])
@@ -142,9 +142,6 @@ print "\ngenome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)
 print "chrom-size:\t" + str(chromosome_size)
 
-# create unaltered reference genome
-baseFile = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
-
 fullCOPYseq = []
 fullCOPY = []
 fullINVseq = []
@@ -152,6 +149,10 @@ fullINV = []
 fullINS = []
 fullDEL = []
 fullSNP = []
+fullSTR = []
+
+# create unaltered reference genome
+baseFile, STR = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
@@ -168,14 +169,22 @@ for chromosome in range(1, num_chromosomes + 1):
     counter = 0
     print "Generating mutations in chromosome: " + str(chromosome)
 
+    # Lists of indices at which deletions and inserts were made
+    insList = []
+    delList = []
+    strList = []
     # get reference genome as single string
     baseFileList = ""
     for line in baseFile:
         if ">" in line:
             break
         baseFileList += str(line)
-    #baseFileList = baseFileList.translate('\n')
+    
     baseFileList=baseFileList.replace("\n","")
+    
+    #Modify the STRs
+    baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
+    fullSTR.append(strList)
 
     #Copy Numbers
     #Sequence of random length between 20-50
@@ -223,7 +232,9 @@ for chromosome in range(1, num_chromosomes + 1):
             actualInv += 1
             # baseFileList=
             # orig =
-            (baseFileList,orig) = invert_str(baseFileList, temp, invLen)
+            orig = invert_strS(baseFileList, temp, invLen)
+            
+            baseFileList= invert_str(baseFileList, temp, invLen)
             invIndex.append([orig, temp])
             
 
@@ -231,12 +242,10 @@ for chromosome in range(1, num_chromosomes + 1):
     invIndex = sorted(invIndex, key=lambda invIndex: invIndex[:][1])
 
     fullINV.append(invIndex)
-
+    
     #INS/DELS
 
-    # Lists of indices at which deletions and inserts were made
-    insList = []
-    delList = []
+
 
     # Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
     # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
@@ -252,10 +261,9 @@ for chromosome in range(1, num_chromosomes + 1):
 
         # Sequence of nucleotides deleted
         delSeq = []
-        delStartIndex = random.randint(i * sectionLen,
-                                       ((i + 1) * sectionLen) - numToInsDel)
+        delStartIndex = random.randint(i * sectionLen, ((i + 1) * sectionLen) - numToInsDel)
         # Delete the nucleotides starting at the index
-        for j in range(0, numToInsDel):
+        for j in range(0, numToInsDel):     
             nucleoDeleted = baseFileList[delStartIndex]
             baseFileList = remove_from_string(baseFileList, delStartIndex)
             delSeq.append(nucleoDeleted)
@@ -318,11 +326,7 @@ for chromosome in range(1, num_chromosomes + 1):
         count += 1
 
     # Sort SNPs by increasing index
-    snp_list = sorted(snp_list, key=lambda snps: snps[:][2])
-    
-    s = difflib.SequenceMatcher(a=tempList, b=baseFileList)
-    for block in s.get_matching_blocks():
-        print "match at a[%d] and b[%d] of length %d" % block    
+    snp_list = sorted(snp_list, key=lambda snps: snps[:][2]) 
     snps = snp_list
 
     fullSNP.append(snps)
@@ -379,8 +383,11 @@ for chromosome in range(1, num_chromosomes + 1):
                 readList += (random.choice(nucleo_base_list) )
             for i in range(0, randomGap):
                 readList += '-'
-            for i in range(50, 99):
+            for i in range(50, 100):
                 readList += random.choice(nucleo_base_list)
+        
+        #for i in range(0, 10):
+        #    readList += random.choice(nucleo_base_list)    
             
             
         readsFile.write(str(readList[:50]))
@@ -410,14 +417,24 @@ for i in range(0, num_chromosomes):
     for j in range(0, len(fullINV[i])):
         baseAnswerFile.write(str(i + 1) + "," + str(fullINV[i][j][0]) + "," + (str)(
             fullINV[i][j][1]) + "\n")
+#STR
+STRFile=open("STRtest.txt", "w")
 
+baseAnswerFile.write(">STR: \n")
+for i in range(0, num_chromosomes):
+    print len(fullSTR[i]    )
+    for j in range(0, len(fullSTR[i])):
+        baseAnswerFile.write(str(i + 1) +"," + (str)(
+                    fullSTR[i][j][2]) + "\n")        
+        STRFile.write(str(i + 1) +"," + (str)(
+                    fullSTR[i][j][0]) + ","+str(fullSTR[i][j][2])+ "\n")  
 
+STRFile.close()
 #inserts
 baseAnswerFile.write(">INSERT:\n")
 for i in range(0, num_chromosomes):
     for j in range(0, len(fullINS[i])):
-        baseAnswerFile.write(
-            str(i + 1) + "," + str(fullINS[i][j][0]) + "," + str(fullINS[i][j][1]))
+        baseAnswerFile.write(str(i + 1) + "," + str(fullINS[i][j][0]) + "," + str(fullINS[i][j][1]))
         baseAnswerFile.write("\n")
         #deletes
 baseAnswerFile.write(">DELETE:\n")
