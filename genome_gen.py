@@ -381,9 +381,6 @@ for chromosome in range(1, num_chromosomes + 1):
                 readList += '-'
             for i in range(50, 99):
                 readList += random.choice(nucleo_base_list)
-        
-        #for i in range(0, 10):
-        #    readList += random.choice(nucleo_base_list)    
             
             
         readsFile.write(str(readList[:50]))
