@@ -120,7 +120,7 @@ def invert_str(arr, index, size):
     arr1 = arr[index:index + size]
     arr = remove_range_from_string(arr, index, size)
     arr = insert_to_string(arr, index, arr1[::-1])
-    return arr1
+    return (arr,arr1[::-1])
 
 
 def usage(name):
@@ -223,7 +223,7 @@ for chromosome in range(1, num_chromosomes + 1):
             actualInv += 1
             # baseFileList=
             # orig =
-            orig = invert_str(baseFileList, temp, invLen)
+            (baseFileList,orig) = invert_str(baseFileList, temp, invLen)
             invIndex.append([orig, temp])
             
 
