@@ -72,7 +72,7 @@ def COPYgrade ( stud, key, index):
                 studTemp=stud[j].split(',')
                 if(ansTemp[0]==studTemp[0] and ansTemp[1]==studTemp[1]):
                     for k in range(2, len(studTemp)):
-                        if(int(ansTemp[i]) >int(studTemp[k])-5 and int(ansTemp[i]) <int(studTemp[k])+5):
+                        if(int(ansTemp[i]) >= int(studTemp[k])-5 and int(ansTemp[i]) <= int(studTemp[k])+5):
                             correct+=1
                             done=1
                             break
@@ -119,7 +119,7 @@ def INVgrade ( stud, key, index):
         studTemp = stud[index].split(',')
         
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
                 correct+=1
                 tmpIndex=index
                 break     
@@ -167,7 +167,7 @@ def INSgrade ( stud, key, index):
         index=tmpIndex+1
         studTemp = stud[index].split(',')
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
                 correct+=1
                 tmpIndex=index
                 break
@@ -216,7 +216,7 @@ def DELgrade ( stud, key, index):
         
         studTemp = stud[index].split(',')
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >int(studTemp[2])-5 and int(ansTemp[2]) <int(studTemp[2])+5):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
                 correct+=1
                 tmpIndex=index
                 break
@@ -265,7 +265,7 @@ def SNPgrade ( stud, key, index):
             studTemp = stud[index].split(',')    
         while(studTemp[0][0]!='>' and int(studTemp[3])<=int(ansTemp[3]) and index<len(stud) and studTemp[0] == ansTemp[0]):
             studTemp = stud[index].split(',')
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >int(studTemp[3])-5 and int(ansTemp[3]) <int(studTemp[3])+5):
+            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >= int(studTemp[3])-5 and int(ansTemp[3]) <= int(studTemp[3])+5):
                 correct+=1
                 tmpIndex=index
                 break      
@@ -315,8 +315,10 @@ def Eval( answerKey, studentAns):
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
     return grades
 
+def main():
+    studentAns = open("test.txt", "r")
+    answerKey = open("ans_genomeH1.txt", "r")
+    test= Eval(answerKey,studentAns)
 
-studentAns = open("test.txt", "r")
-answerKey = open("ans_genomeH1.txt", "r")
-
-test= Eval(answerKey,studentAns)
+if __name__ == '__main__':
+    main()
