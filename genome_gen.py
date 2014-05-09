@@ -59,6 +59,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
 
     genome=[]
     STR=generate_STR(length_chromosome);
+        
     STRpos=[]
     genome=''
     #
@@ -76,7 +77,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
             genome=  remove_range_from_string(genome, tmp, len(STR[j][1]))
             genome = insert_to_string(genome, tmp, str(STR[j][1]) )           
             STRpos.append([tmp,STR[j][0],STR[j][1]])
-        
+
         for j in range(0, length_chromosome):
             # write a maximum of 80 alleles per line
             if j != 0 and j % 80 == 0:
@@ -95,11 +96,7 @@ def invert_str(arr, index, size):
     arr1 = arr[index:index + size]
     arr = remove_range_from_string(arr, index, size)
     arr = insert_to_string(arr, index, arr1[::-1])
-    return arr
-
-def invert_strS(arr, index, size):
-    arr1 = arr[index:index + size]
-    return arr1[::-1]
+    return arr, arr1
 
 def usage(name):
     print "USAGE: python " + str(
@@ -107,24 +104,34 @@ def usage(name):
 
 def modSTR(genome, STR):
     fullSTR=[]
+    INS=[]
+    DEL=[]    
+
     for j in range(len(STR)):
         tmp=random.randint(-2,2)
-        INS=[]
-        DEL=[]
         tmpStr='' 
 
         if(tmp>0):
-            genome = insert_to_string(genome, int(STR[j][0]), tmp*str(STR[j][1]))  
-            DEL.append([tmp*str(STR[j][1]), str(STR[j][0])])
-            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(str(STR[j][2])+tmp*str(STR[j][1]))])       
-        elif(tmp<0):
-            for j in range(-tmp):
-                tmpStr+=random.choice(nucleo_base_list)            
-            genome = remove_range_from_string(genome, int(STR[j][0]), tmp*len(STR[j][1]))
-            genome = insert_to_string(genome, tmp, tmpStr)
+            genome = remove_range_from_string(genome, int(STR[j][0])+len(STR[j][2]), tmp*len(STR[j][1]))
+            genome = insert_to_string(genome, int(STR[j][0]), tmp*str(STR[j][1]))
+            
+            DEL.append([tmp*str(STR[j][1]), str(int(STR[j][0])+len(STR[j][2])-tmp*len(STR[j][1]))])
+            
+            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(str(STR[j][2])+tmp*str(STR[j][1]))])     
+        if(tmp<0):
+            for k in range(len(STR[j][1])):
+                tmpStr+=random.choice(nucleo_base_list)    
+
+            genome = remove_range_from_string(genome, int(STR[j][0]), -tmp*len(STR[j][1]))
+            genome = insert_to_string(genome, int(STR[j][0]), -tmp*tmpStr)
+            
             INS.append([tmpStr,str(STR[j][0])])
+            
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2][-tmp*len(STR[j][1]):])])
             
+        if(tmp==0):
+            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2])])
+
     return genome, INS, DEL, fullSTR
         
         
@@ -232,9 +239,8 @@ for chromosome in range(1, num_chromosomes + 1):
             actualInv += 1
             # baseFileList=
             # orig =
-            orig = invert_strS(baseFileList, temp, invLen)
             
-            baseFileList= invert_str(baseFileList, temp, invLen)
+            baseFileList, orig= invert_str(baseFileList, temp, invLen)
             invIndex.append([orig, temp])
             
 
@@ -287,7 +293,8 @@ for chromosome in range(1, num_chromosomes + 1):
 
         insList.append([str(''.join(insSeq)), str(insStartIndex)])
         #insList.append(''.join(insSeq) + "," + str(insStartIndex))
-
+    insList = sorted(insList, key=lambda insList: int(insList[:][1])) 
+    delList = sorted(delList, key=lambda delList: int(delList[:][1])) 
     fullINS.append(insList)
     fullDEL.append(delList)
 
@@ -422,10 +429,10 @@ STRFile=open("STRtest.txt", "w")
 
 baseAnswerFile.write(">STR: \n")
 for i in range(0, num_chromosomes):
-    print len(fullSTR[i]    )
     for j in range(0, len(fullSTR[i])):
-        baseAnswerFile.write(str(i + 1) +"," + (str)(
-                    fullSTR[i][j][2]) + "\n")        
+        baseAnswerFile.write(str(i + 1) +","+str(
+                    fullSTR[i][j][1])+ ","+str(len(fullSTR[i][j][2])/len(fullSTR[i][j][1])) + ","+str(fullSTR[i][j][0])+"\n")
+        
         STRFile.write(str(i + 1) +"," + (str)(
                     fullSTR[i][j][0]) + ","+str(fullSTR[i][j][2])+ "\n")  
 
