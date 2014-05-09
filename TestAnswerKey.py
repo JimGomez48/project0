@@ -1,8 +1,9 @@
 __author__ = 'Joseph'
 
-def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, str_test_file, allowable_range, verbose=False):
+def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, allowable_range, verbose=False):
     ref_genome = ''
     prv_genome = ''
+    str_count = 0
     bad_ans_list = []
     with open(ref_genome_file, 'r') as gen_file:
         for line in gen_file:
@@ -88,25 +89,23 @@ def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, str_test_file, al
                     if not found:
                         bad_ans_list.append(str(posn) + ',INSERT error,' + seq)
                 elif type == 'STR':
-                    with open(str_test_file, 'r') as str_file:
-                        for line in str_file:
-                            posn = int(line.split(',')[1])
-                            seq = line.split(',')[2]
-                            #repeat = int(line.split(',')[3])
-                            #seq = seq * repeat
-                            prv_found = False
-                            ref_found = False
-                            for i in range(posn - allowable_range, posn + allowable_range + 1):
-                                if prv_genome[i:i+len(seq)] == seq:
-                                    prv_found = True
-                                    print 'private STR found'
-                            for i in range(posn - allowable_range, posn + allowable_range + 1):
-                                if ref_genome[i:i+len(seq)] == seq:
-                                    ref_found = True
-                            if not prv_found:
-                                bad_ans_list.append(str(posn) + ',STR not found,' + seq)
-                            if ref_found:
-                                bad_ans_list.append(str(posn) + ',STR not modified,' + seq)
+                    seq = line.split(',')[1].rstrip()
+                    repeat = int(line.split(',')[2])
+                    seq = seq * repeat
+                    posn = int(line.split(',')[3])
+                    prv_found = False
+                    ref_found = False
+                    for i in range(posn - 20, posn + 21):
+                        if prv_genome[i:i+len(seq)] == seq:
+                            prv_found = True
+                    for i in range(posn - 20, posn + 21):
+                        if ref_genome[i:i+len(seq)] == seq:
+                            ref_found = True
+                    if not prv_found:
+                        bad_ans_list.append(str(posn) + ',STR not found,' + seq)
+                    #if ref_found:
+                    #    bad_ans_list.append(str(posn) + ',STR not modified,' + seq)
+    print str_count
     if len(bad_ans_list) > 0:
         for line in bad_ans_list:
             if not verbose:
@@ -115,17 +114,16 @@ def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, str_test_file, al
                 posn = int(line.split(',')[0])
                 print 'Error: ' + line.rstrip()
                 print 'Genomes surrounding position: ' + str(posn)
-                print '%51s' % 'V'
-                print 'Ref: ' + ref_genome[posn - 50:posn + 50]
-                print 'Prv: ' + prv_genome[posn - 50:posn + 50]
+                print '%11s' % 'V'
+                print 'Ref: ' + ref_genome[posn - 10:posn + 100]
+                print 'Prv: ' + prv_genome[posn - 10:posn + 100]
                 print '\n'
 
 def main():
     prv_file_path = 'private_STRtest.txt'
     ref_file_path = 'ref_STRtest.txt'
     ans_file_path = 'ans_STRtest.txt'
-    str_test_file = 'STRtest.txt'
-    Test_Answer_Key(ref_file_path, prv_file_path, ans_file_path, str_test_file, 5, True)
+    Test_Answer_Key(ref_file_path, prv_file_path, ans_file_path, 5, False)
 
 if __name__ == '__main__':
     main()
