@@ -68,7 +68,7 @@ def COPYgrade ( stud, key, index):
         
         for i in range(2,len(ansTemp)):  
             studTemp=[0]*1000 #make a temp list
-            for j in range(index, index+len(studTemp)+1):
+            for j in range(index, index+keynums):
                 studTemp=stud[j].split(',')
                 if(ansTemp[0]==studTemp[0] and ansTemp[1]==studTemp[1]):
                     for k in range(2, len(studTemp)):
