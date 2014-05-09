@@ -378,10 +378,10 @@ def Eval(answerKey, studentAns):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
             print "SNP grade: "+ str(snpGrade)
         if (studAns[i][0:5]==">STR:"):
-            snpGrade=STRgrade(studAns,ansKey,i+1)
-            print "STR grade: "+ str(snpGrade)
+            strGrade=STRgrade(studAns,ansKey,i+1)
+            print "STR grade: "+ str(strGrade)
             
-    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
+    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade, 'STR': strGrade}
     return grades
 
 def main():
