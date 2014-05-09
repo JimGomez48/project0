@@ -3,7 +3,6 @@ __author__ = 'Joseph'
 def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, allowable_range, verbose=False):
     ref_genome = ''
     prv_genome = ''
-    str_count = 0
     bad_ans_list = []
     with open(ref_genome_file, 'r') as gen_file:
         for line in gen_file:
@@ -90,7 +89,7 @@ def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, allowable_range, 
                         bad_ans_list.append(str(posn) + ',INSERT error,' + seq)
                 elif type == 'STR':
                     seq = line.split(',')[1].rstrip()
-                    repeat = int(line.split(',')[2])
+                    repeat = int(line.split(',')[2]) / 2
                     seq = seq * repeat
                     posn = int(line.split(',')[3])
                     prv_found = False
@@ -105,7 +104,6 @@ def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, allowable_range, 
                         bad_ans_list.append(str(posn) + ',STR not found,' + seq)
                     #if ref_found:
                     #    bad_ans_list.append(str(posn) + ',STR not modified,' + seq)
-    print str_count
     if len(bad_ans_list) > 0:
         for line in bad_ans_list:
             if not verbose:
@@ -123,7 +121,7 @@ def main():
     prv_file_path = 'private_STRtest.txt'
     ref_file_path = 'ref_STRtest.txt'
     ans_file_path = 'ans_STRtest.txt'
-    Test_Answer_Key(ref_file_path, prv_file_path, ans_file_path, 5, False)
+    Test_Answer_Key(ref_file_path, prv_file_path, ans_file_path, 5, True)
 
 if __name__ == '__main__':
     main()
