@@ -274,8 +274,29 @@ def SNPgrade ( stud, key, index):
     return grade(studTot, correct, total)
     #calculate false positives
 
+def needleman_wunsch(n, m):
+    n_len = len(n)
+    m_len = len(m)
+    matrix = []
+    for row in range(0, n_len+1):
+        matrix.append(list())
+        for col in range(0, m_len+1):
+            matrix[row].append(0)
+    for row in range(1, n_len+1):
+        for col in range(1, m_len+1):
+            top = matrix[row-1][col]
+            topleft = matrix[row-1][col-1]
+            left = matrix[row][col-1]
+            if n[col-1] == m[row-1]:
+                charscore = 1
+            else:
+                charscore = -1
+            max_val = max(top-1, topleft+charscore, left-1)
+            matrix[row][col] = max_val
+    return matrix[n_len][m_len]
+
 def STRgrade(stud, key, stud_index):
-    keyIndex = findIndex(key,">STR")
+    keyIndex = findIndex(key,">STR:")
     keyIndex += 1 # index of first answer
     # find end of answers in key
     i = keyIndex
@@ -292,13 +313,23 @@ def STRgrade(stud, key, stud_index):
     student_answers = []
     for ans in stud[stud_index:i]:
         student_answers.append(ans.split(','))
-    answers_correct = 0
+    score = 0
     for key_ans in key_answers:
         for student_ans in student_answers:
-            if student_ans[3] >= key_ans[3]-20 and student_ans[3] <= key_ans[3]+20:
-                answers_correct += 1
+            if int(student_ans[3]) >= int(key_ans[3])-20 and \
+               int(student_ans[3]) <= int(key_ans[3])+20:
+                score += 0.5
+                ans_sequence = ""
+                student_sequence = ""
+                for rpt in range(0,int(key_ans[2])):
+                    ans_sequence += key_ans[1]
+                for rpt in range(0,int(student_ans[2])):
+                    student_sequence += key_ans[1]
+                max_align_score = len(ans_sequence)
+                align_score = needleman_wunsch(ans_sequence, student_sequence)
+                score += (float(align_score)/(2*max_align_score))
                 break;
-    return grade(len(student_answers), answers_correct, len(key_answers))
+    return grade(len(student_answers), score, len(key_answers))
 
 def Eval(answerKey, studentAns):
     
@@ -337,13 +368,16 @@ def Eval(answerKey, studentAns):
         if (studAns[i][0:4]==">SNP"):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
             print "SNP grade: "+ str(snpGrade)
+        if (studAns[i][0:5]==">STR:"):
+            snpGrade=STRgrade(studAns,ansKey,i+1)
+            print "STR grade: "+ str(snpGrade)
             
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade}
     return grades
 
 def main():
-    studentAns = open("test.txt", "r")
-    answerKey = open("ans_genomeH1.txt", "r")
+    studentAns = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
+    answerKey = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
     test= Eval(answerKey,studentAns)
 
 if __name__ == '__main__':
