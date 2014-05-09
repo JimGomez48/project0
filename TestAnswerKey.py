@@ -118,9 +118,9 @@ def Test_Answer_Key(ref_genome_file, prv_genome_file, ans_key, allowable_range, 
                 print '\n'
 
 def main():
-    prv_file_path = 'private_STRtest.txt'
-    ref_file_path = 'ref_STRtest.txt'
-    ans_file_path = 'ans_STRtest.txt'
+    prv_file_path = 'private_genomeE1.txt'
+    ref_file_path = 'ref_genomeE1.txt'
+    ans_file_path = 'ans_genomeE1.txt'
     Test_Answer_Key(ref_file_path, prv_file_path, ans_file_path, 5, True)
 
 if __name__ == '__main__':

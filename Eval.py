@@ -115,8 +115,10 @@ def INVgrade ( stud, key, index):
         ansTemp=key[ans].split(',')
         ans+=1
         index=tmpIndex+1
-        
-        studTemp = stud[index].split(',')
+
+
+        if(index<len(stud)):
+            studTemp = stud[index].split(',')
         
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
@@ -125,7 +127,8 @@ def INVgrade ( stud, key, index):
                 break     
             tmpIndex=index
             index += 1
-            studTemp = stud[index].split(',')
+            if(index<len(stud)):
+                studTemp = stud[index].split(',')
       
     return grade(studTot, correct, total)    
 
@@ -165,7 +168,8 @@ def INSgrade ( stud, key, index):
         ansTemp=key[ans].split(',')
         ans+=1
         index=tmpIndex+1
-        studTemp = stud[index].split(',')
+        if(index<len(stud)):
+            studTemp = stud[index].split(',')
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
                 correct+=1
@@ -173,7 +177,8 @@ def INSgrade ( stud, key, index):
                 break
             tmpIndex=index
             index += 1
-            studTemp = stud[index].split(',')
+            if(index<len(stud)):
+                studTemp = stud[index].split(',')
             
     return grade(studTot, correct, total)   
 
@@ -213,8 +218,9 @@ def DELgrade ( stud, key, index):
         ansTemp=key[ans].split(',')
         ans+=1
         index=tmpIndex+1
-        
-        studTemp = stud[index].split(',')
+
+        if(index<len(stud)):
+            studTemp = stud[index].split(',')
         while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
             if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
                 correct+=1
@@ -222,7 +228,8 @@ def DELgrade ( stud, key, index):
                 break
             tmpIndex=index
             index += 1
-            studTemp = stud[index].split(',')
+            if(index<len(stud)):
+                studTemp = stud[index].split(',')
             
     return grade(studTot, correct, total)
 
