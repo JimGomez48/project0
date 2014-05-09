@@ -271,6 +271,8 @@ def SNPgrade ( stud, key, index):
                 break      
             tmpIndex=index
             index += 1
+            if(index<len(stud)):
+                studTemp = stud[index].split(',')
     return grade(studTot, correct, total)
     #calculate false positives
 
