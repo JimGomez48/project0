@@ -351,6 +351,7 @@ def Eval(answerKey, studentAns):
     insertGrade=0
     deleteGrade=0
     snpGrade=0
+    strGrade=0
     
     for i in range(0,len(studAns)-1):
         #if (studAns[i][0:3]==">ID"):
