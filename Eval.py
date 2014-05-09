@@ -274,7 +274,33 @@ def SNPgrade ( stud, key, index):
     return grade(studTot, correct, total)
     #calculate false positives
 
-def Eval( answerKey, studentAns):
+def STRgrade(stud, key, stud_index):
+    keyIndex = findIndex(key,">STR")
+    keyIndex += 1 # index of first answer
+    # find end of answers in key
+    i = keyIndex
+    while (i < len(key) and key[i][0] != '>'):
+        i += 1
+    key_answers = []
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')
+        key_answers.append(split_ans)
+    i = stud_index
+    # find end of student answers
+    while (i < len(stud) and stud[i][0]!='>'): 
+        i += 1
+    student_answers = []
+    for ans in stud[stud_index:i]:
+        student_answers.append(ans.split(','))
+    answers_correct = 0
+    for key_ans in key_answers:
+        for student_ans in student_answers:
+            if student_ans[3] >= key_ans[3]-20 and student_ans[3] <= key_ans[3]+20:
+                answers_correct += 1
+                break;
+    return grade(len(student_answers), answers_correct, len(key_answers))
+
+def Eval(answerKey, studentAns):
     
     # Open up student answers
     #studentAns = open(sys.argv[1], "r")
