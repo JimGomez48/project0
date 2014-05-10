@@ -326,7 +326,6 @@ def STRgrade(stud, key, stud_index):
     score = 0
     for key_ans in key_answers:
         for student_ans in student_answers:
-            print str(student_ans)
             if int(student_ans[3]) >= int(key_ans[3])-20 and \
                int(student_ans[3]) <= int(key_ans[3])+20:
                 score += 0.5
