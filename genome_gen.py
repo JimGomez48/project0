@@ -131,7 +131,9 @@ def modSTR(genome, STR):
             
         if(tmp==0):
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2])])
-
+            
+    fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
+    
     return genome, INS, DEL, fullSTR
         
         
