@@ -378,7 +378,7 @@ def Eval(answerKey, studentAns):
         if (studAns[i][0:4]==">SNP"):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
             print "SNP grade: "+ str(snpGrade)
-        if (studAns[i][0:5]==">STR"):
+        if (studAns[i][0:4]==">STR"):
             strGrade=STRgrade(studAns,ansKey,i+1)
             print "STR grade: "+ str(strGrade)
             
