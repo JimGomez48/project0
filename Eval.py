@@ -58,58 +58,60 @@ def needleman_wunsch(n, m):
 # TEST AGAIN FOR MULTIPLE COPIES
 #
 
-#criteria to grade the SNP portion
-def SNPgrade ( stud, key, index):
-    ans=findIndex(key,">SNP")
-    correct=0
-    total=0
-    studTot=0
-    i=index
+#SNP score function
+def SNPgrade(stud, key, stud_index):
+    keyIndex = findIndex(key,">SNP")
+    keyIndex += 1 # index of first answer
+    # find end of answers in key
+    i = keyIndex
+    while (i < len(key) and key[i][0] != '>'):
+        i += 1
+    key_answers = []
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')
+        key_answers.append(split_ans)
+    answer_key_length = len(key_answers)
+    i = stud_index
+    # find end of student answers
     while (i < len(stud) and stud[i][0]!='>'):
-        studTot+=1
-        i+=1
-    ans+=1
-    # Sort SNPs
-    sortStud = []
-    # Split each line into 3 parts
-    for k in range(index, index+studTot):
-        tempSort = stud[k].split(',')
-        tempSort[3] = int(tempSort[3])
-        sortStud.append(tempSort)
+        i += 1
+    student_answers = []
+    for ans in stud[stud_index:i]:
+        student_answers.append(ans.split(','))
 
     # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][3]))
+    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[3])))
 
-    # After sorting, combine the parts together again into one string line
-    for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + sortStud[k][2] + "," + str(sortStud[k][3])
+    score = 0
+    max_posn_diff = 5
+    for student_ans in student_answers:
+        remove_list = []
 
-    # Copy the sorted section back into the student answer array
-    stud[index:index+studTot] = sortStud
+        #loop through remaining answer key entries to find the best match, if any
+        for key_ans in key_answers:
+            #if this key has already been passed, then mark it for removal
+            if int(student_ans[3]) > int(key_ans[3])+max_posn_diff:
+                remove_list.append(key_ans)
 
-    tmpIndex=index-1
-    while (ans < len(key) and key[ans][0]!='>'):
-        total+=1
-        ansTemp=key[ans].split(',')
-        ans+=1
-        index=tmpIndex+1
-        if(index<len(stud)):
-            studTemp = stud[index].split(',')
-        while(studTemp[0][0]!='>' and int(studTemp[3])<=int(ansTemp[3]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            studTemp = stud[index].split(',')
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >= int(studTemp[3])-5 and int(ansTemp[3]) <= int(studTemp[3])+5):
-                correct+=1
-                tmpIndex=index
+            elif int(student_ans[3]) >= int(key_ans[3])-max_posn_diff and \
+               int(student_ans[3]) <= int(key_ans[3])+max_posn_diff and \
+                    student_ans[2] == key_ans[2]:
+                score += 1
+                remove_list.append(key_ans)
                 break
-            tmpIndex=index
-            index += 1
-            if(index<len(stud)):
-                studTemp = stud[index].split(',')
-    return grade(studTot, correct, total)
-    #calculate false positives
+
+            #once answers keys that are out of range are reached, then break the for loop
+            elif int(student_ans[3]) < int(key_ans[3])-max_posn_diff:
+                break
+
+        #get rid of the unneeded answer key entries
+        for old_key in remove_list:
+            key_answers.remove(old_key)
+
+    return grade(len(student_answers), score, answer_key_length)
 
 def STRgrade(stud, key, stud_index):
-    keyIndex = findIndex(key,">STR:")
+    keyIndex = findIndex(key,">STR")
     keyIndex += 1 # index of first answer
     # find end of answers in key
     i = keyIndex
@@ -389,6 +391,7 @@ def main():
     test= Eval(answerKey,studentAns)
     for key in test:
         print key + ' grade: ' + str(test[key])
+
 
 if __name__ == '__main__':
     main()
