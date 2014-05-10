@@ -338,6 +338,8 @@ def STRgrade(stud, key, stud_index):
                     student_sequence += key_ans[1]
                 max_align_score = len(ans_sequence)
                 align_score = needleman_wunsch(ans_sequence, student_sequence)
+                if align_score < 0:
+                  align_score = 0
                 score += (float(align_score)/(2*max_align_score))
                 break;
     return grade(len(student_answers), score, len(key_answers))
