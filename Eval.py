@@ -291,8 +291,8 @@ def needleman_wunsch(n, m):
         matrix.append(list())
         for col in range(cols):
             matrix[row].append(0)
-    for row in range(rows):
-        for col in range(cols):
+    for row in range(1, rows):
+        for col in range(1, cols):
             top = matrix[row-1][col]
             topleft = matrix[row-1][col-1]
             left = matrix[row][col-1]
@@ -305,7 +305,6 @@ def needleman_wunsch(n, m):
     return matrix[rows-1][cols-1]
 
 def STRgrade(stud, key, stud_index):
-    print 'in STRgrade'
     keyIndex = findIndex(key,">STR:")
     keyIndex += 1 # index of first answer
     # find end of answers in key
@@ -326,7 +325,6 @@ def STRgrade(stud, key, stud_index):
     score = 0
     for key_ans in key_answers:
         for student_ans in student_answers:
-            print str(student_ans)
             if int(student_ans[3]) >= int(key_ans[3])-20 and \
                int(student_ans[3]) <= int(key_ans[3])+20:
                 score += 0.5
@@ -336,11 +334,14 @@ def STRgrade(stud, key, stud_index):
                     ans_sequence += key_ans[1]
                 for rpt in range(0,int(student_ans[2])):
                     student_sequence += key_ans[1]
-                max_align_score = len(ans_sequence)
+                max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
                 align_score = needleman_wunsch(ans_sequence, student_sequence)
+                align_score = align_score
                 if align_score < 0:
                   align_score = 0
-                score += (float(align_score)/(2*max_align_score))
+                adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
+                adj_score = (adj_score**4) #since repeats only vary -2 to 2, its fairly easy to get close, so increasing penalty for error
+                score += adj_score / 2
                 break;
     return grade(len(student_answers), score, len(key_answers))
 
@@ -369,22 +370,22 @@ def Eval(answerKey, studentAns):
     for i in range(0,len(studAns)-1):
         if (studAns[i][0:5]==">COPY"):
             copyGrade=COPYgrade(studAns,ansKey,i+1)
-            print "COPY grade: " + str(copyGrade)
+            #print "COPY grade: " + str(copyGrade)
         if (studAns[i][0:10]==">INVERSION"):
             invGrade=INVgrade(studAns,ansKey,i+1)
-            print "INVERSIONS grade: "+ str(invGrade)
+            #print "INVERSIONS grade: "+ str(invGrade)
         if (studAns[i][0:7]==">INSERT"):
             insertGrade =INSgrade(studAns,ansKey,i+1)
-            print "INSERTIONS grade: "+ str(insertGrade)
+            #print "INSERTIONS grade: "+ str(insertGrade)
         if (studAns[i][0:7]==">DELETE"):
             deleteGrade=DELgrade(studAns,ansKey,i+1)
-            print "DELETIONS grade: "+ str(deleteGrade)
+            #print "DELETIONS grade: "+ str(deleteGrade)
         if (studAns[i][0:4]==">SNP"):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
-            print "SNP grade: "+ str(snpGrade)
+            #print "SNP grade: "+ str(snpGrade)
         if (studAns[i][0:4]==">STR"):
             strGrade=STRgrade(studAns,ansKey,i+1)
-            print "STR grade: "+ str(strGrade)
+            #print "STR grade: "+ str(strGrade)
 
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade, 'STR': strGrade}
     return grades
@@ -393,6 +394,8 @@ def main():
     studentAns = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
     answerKey = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
     test= Eval(answerKey,studentAns)
+    for key in test:
+        print key + ' grade: ' + str(test[key])
 
 if __name__ == '__main__':
     main()
