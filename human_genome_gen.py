@@ -6,7 +6,7 @@ Created on Apr 14, 2014
 Human genome version of the generator. Takes in raw chromosome files and 
 processes those, rather than creating a random sequence for each chromosome. 
 
-Data available at: STILL UPLOADING
+Data available at: https://drive.google.com/file/d/0B0PoPlbhP0P8YmZEYm9ZSTR2Tm8/edit?usp=sharing
 """
 
 import random
