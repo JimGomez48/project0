@@ -59,7 +59,7 @@ def generate_ref_genome(raw_file_data, genome_id, num_chromosomes, length_chromo
     each of length length_chromosome
     """
     print "Generating reference genome..."
-    ref_file = open("ref_human" + genome_id + ".txt", "w")
+    ref_file = open("ref_" + genome_id + ".txt", "w")
     ref_file.write(">" + str(genome_id))
 
     genome=[]
