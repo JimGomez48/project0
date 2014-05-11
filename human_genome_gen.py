@@ -73,8 +73,8 @@ def generate_ref_genome(raw_file_data, genome_id, num_chromosomes, length_chromo
     for i in range(1, num_chromosomes + 1):
         ref_file.write("\n>chr" + str(i) + "\n")
         #Generate the string
-        for j in range(0, length_chromosome):
-            genome+=raw_file_data
+        #for j in range(0, length_chromosome):
+        genome=raw_file_data
                
         for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
@@ -105,7 +105,7 @@ def invert_str(arr, index, size):
 
 def usage(name):
     print "USAGE: python " + str(
-        name) + " <raw_file_name> <genome_id> <#chromosomes> <chromosome_size x 1M>"
+        name) + " <raw_file_name> <genome_id> <#chromosomes>"
 
 def modSTR(genome, STR):
     fullSTR=[]
@@ -172,7 +172,7 @@ fullSNP = []
 fullSTR = []
 
 # create unaltered reference genome
-baseFile, STR = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
+baseFile, STR = generate_ref_genome(raw_file_data, genome_id, num_chromosomes, chromosome_size)
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
