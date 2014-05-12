@@ -258,7 +258,7 @@ for chromosome in range(1, num_chromosomes + 1):
     # Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
     # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
     print "\tGenerating indels..."
-    sectionLen = 500 # int(chromosome_size * 0.001 * 2)
+    sectionLen = 1000 # int(chromosome_size * 0.001 * 2)
     for i in range(0, int(chromosome_size / sectionLen)):
 
         # Make deletions in i-th section
