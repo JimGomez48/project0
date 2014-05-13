@@ -48,7 +48,7 @@ def generate_STR(length):
         STR.append([temp,temp*copies])
     return STR
 
-
+#generates the base ALU
 def generate_ALU(length):
     ALU=''
     for i in range(300):
@@ -79,11 +79,18 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
         for j in range(0, length_chromosome):
             genome+=random.choice(nucleo_base_list)
                
-        for j in range(int(length_chromosome*0.1/300)):
-            tmp=random.randint(0,length_chromosome-len(ALU))
-            genome=  remove_range_from_string(genome, tmp, len(ALU)) #add the ALU
-            genome = insert_to_string(genome, tmp, str(ALU) )               
-            ALUpos.append([tmp, str(ALU)])
+        for j in range(int(length_chromosome*0.1/300)): # 10% of the genome
+            tmp=random.randint(0,length_chromosome-len(ALU)) 
+            
+            ALUtemp=ALU
+            for k in range(int(len(ALU)*0.3)):#30% mutations
+                temp=random.randint(0,len(ALUtemp)-1)
+                ALUtemp=remove_from_string(ALUtemp,temp)
+                ALUtemp=insert_to_string(ALUtemp,temp,random.choice(nucleo_base_list))            
+            
+            genome=  remove_range_from_string(genome, tmp, len(ALUtemp)) #add the ALU
+            genome = insert_to_string(genome, tmp, str(ALUtemp) )               
+            ALUpos.append([tmp, str(ALUtemp)])
             
         for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
@@ -149,16 +156,18 @@ def modSTR(genome, STR):
     fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
     return genome, INS, DEL, fullSTR
 
-def modALU (genome, ALU):
-    for i in range(10):# insert 10 more ALUs
+def modALU (genome, ALU, length):
+    for i in range(int(length/100000)+1):# insert 1 every 100,000
         randomPos=random.randint(0,len(genome)-len(ALU[0][1]))
         ALUtemp=ALU[0][1]
         for j in range(int(len(ALU[0][1])*0.3)):#30% mutations
-            tmp=random.randint(0,len(ALUtemp))
+            tmp=random.randint(0,len(ALUtemp)-1)
             ALUtemp=remove_from_string(ALUtemp,tmp)
             ALUtemp=insert_to_string(ALUtemp,tmp,random.choice(nucleo_base_list))
+            
         genome= remove_range_from_string(genome, randomPos, len(ALUtemp))
         genome= insert_to_string(genome, randomPos, ALUtemp)
+        print len(ALUtemp)
         ALU.append([randomPos, str(ALUtemp)])
         ALU = sorted(ALU, key = lambda ALU: int(ALU[:][0]))
     return genome, ALU            
@@ -221,7 +230,7 @@ for chromosome in range(1, num_chromosomes + 1):
     baseFileList=baseFileList.replace("\n","")
     
     #Modify the STRs
-    baseFileList, aluList = modALU(baseFileList,ALU)
+    baseFileList, aluList = modALU(baseFileList,ALU, chromosome_size)
     baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
 
     fullALU.append(aluList)
