@@ -344,7 +344,7 @@ def Eval(answerKey, studentAns):
 
     # Open up student answers
     #studentAns = open(sys.argv[1], "r")
-    studAns = studentAns.readlines()
+    studAns = [line.rstrip() for line in studentAns]
     studentAns.close()
     copyGrade=0
     invGrade=0
@@ -352,6 +352,7 @@ def Eval(answerKey, studentAns):
     deleteGrade=0
     snpGrade=0
     strGrade=0
+    aluGrade=0
 
     for i in range(0,len(studAns)-1):
         #if (studAns[i][0:3]==">ID"):
@@ -359,7 +360,7 @@ def Eval(answerKey, studentAns):
             filename = studAns[i+1]
             filename=filename.translate(None,'\n>')
     #answerKey = open("ans_"+filename+".txt", "r")
-    ansKey = answerKey.readlines()
+    ansKey = [line.rstrip() for line in answerKey]
     answerKey.close()
 
     for i in range(0,len(studAns)-1):
@@ -381,8 +382,11 @@ def Eval(answerKey, studentAns):
         if (studAns[i][0:4]==">STR"):
             strGrade=STRgrade(studAns,ansKey,i+1)
             #print "STR grade: "+ str(strGrade)
+        if (studAns[i][0:4]==">ALU"):
+            deleteGrade=INDELgrade(studAns,ansKey,i+1, ">ALU")
 
-    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade, 'STR': strGrade}
+    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade,
+              'STR': strGrade, 'ALU': aluGrade}
     return grades
 
 def main():
