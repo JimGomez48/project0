@@ -329,7 +329,7 @@ def COPYgrade ( stud, key, index):
                 studTemp=stud[j].split(',')
                 if ansTemp[0]==studTemp[0]:
                     max_length = max(len(ansTemp[1]), len(studTemp[1]))
-                    if needleman_wunsch(ansTemp[1], studTemp[1]) / max_length > 0.8: #correct if over 80% match
+                    if needleman_wunsch(ansTemp[1], studTemp[1]) / float(max_length) > 0.8: #correct if over 80% match
                         for k in range(2, len(studTemp)):
                             if(int(ansTemp[i]) >= int(studTemp[k])-5 and int(ansTemp[i]) <= int(studTemp[k])+5):
                                 correct+=1
