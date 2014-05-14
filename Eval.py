@@ -33,6 +33,12 @@ def needleman_wunsch(n, m):
         matrix.append(list())
         for col in range(cols):
             matrix[row].append(0)
+    #initialize first column
+    for row in range(rows):
+      matrix[row][0] = -row
+    #initalize first row
+    for col in range(cols):
+      matrix[0][col] = -col
     for row in range(1, rows):
         for col in range(1, cols):
             top = matrix[row-1][col]
