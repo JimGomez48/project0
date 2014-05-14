@@ -32,9 +32,7 @@ def ASSEMBLYgrade(answerGenome, studentAns, index):
     
     #studentGenome = studentAns.readline()
     chunk_len = 100
-    #studentAnsChunks = [studentGenome[i:i+chunk_len] for i in range(0, len(studentGenome), chunk_len)]
-    studTot = len(studentAns)
-   
+    #studentAnsChunks = [studentGenome[i:i+chunk_len] for i in range(0, len(studentGenome), chunk_len)]   
     
     # Read the answer genome into a list
     # Skip the first line 
