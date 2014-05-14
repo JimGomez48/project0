@@ -39,7 +39,7 @@ def copy_to_string(arr, index, size):
 
 def generate_STR(length):    
     STR=[]
-    for i in range(int(length*0.0001)):
+    for i in range(int(length*0.001)):
         seqLen=random.randint(2,5)
         copies=random.randint(10,20)        
         temp=''
@@ -100,7 +100,7 @@ def invert_str(arr, index, size):
 
 def usage(name):
     print "USAGE: python " + str(
-        name) + " <genome_id> <#chromosomes> <chromosome_size x 1M>"
+        name) + " <genome_id> <#chromosomes> <chromosome_size>"
 
 def modSTR(genome, STR):
     fullSTR=[]
@@ -145,7 +145,7 @@ if len(sys.argv) < 4:
 # get parameters from console
 genome_id = str(sys.argv[1])
 num_chromosomes = int(sys.argv[2])
-chromosome_size = int(sys.argv[3]) * 1000000
+chromosome_size = int(sys.argv[3])
 
 print "\ngenome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)
@@ -206,7 +206,7 @@ for chromosome in range(1, num_chromosomes + 1):
             int(random.random() * (chromosome_size - copyLen[copyLoop])))
 
         #0.001% of the time the string is copied
-        for i in range(0, int(chromosome_size * 0.00001)):
+        for i in range(0, int(chromosome_size * 0.0005)):
             temp = (int(random.random() * (chromosome_size - copyLen[copyLoop])))
             write = 1
             for j in range(0, len(copyIndex) - 1):
@@ -227,7 +227,7 @@ for chromosome in range(1, num_chromosomes + 1):
     invIndex = []
     orig = []
     print "\tGenerating inversions..."
-    for invLoop in range(0, int(0.00001 * chromosome_size)):
+    for invLoop in range(0, int(0.0005 * chromosome_size)):
         write = 1
         temp = int(random.random() * (chromosome_size - copyLen[copyLoop]))
         invLen = random.randint(20, 50)
@@ -258,7 +258,7 @@ for chromosome in range(1, num_chromosomes + 1):
     # Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
     # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
     print "\tGenerating indels..."
-    sectionLen = 1000 # int(chromosome_size * 0.001 * 2)
+    sectionLen = 1000
     for i in range(0, int(chromosome_size / sectionLen)):
 
         # Make deletions in i-th section
@@ -454,7 +454,7 @@ for i in range(0, num_chromosomes):
         baseAnswerFile.write("\n")
 
         #snps
-baseAnswerFile.write(">SNP")
+baseAnswerFile.write(">SNP:")
 for i in range(0, num_chromosomes):
     for j in range(0, len(fullSNP[i])):
         baseAnswerFile.write("\n" + str(i + 1) + "," + str(fullSNP[i][j][0]) + ',')

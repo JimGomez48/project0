@@ -39,7 +39,7 @@ def copy_to_string(arr, index, size):
 
 def generate_STR(length):    
     STR=[]
-    for i in range(int(length*0.0001)):
+    for i in range(int(length*0.001)):
         seqLen=random.randint(2,5)
         copies=random.randint(10,20)        
         temp=''
@@ -58,9 +58,9 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     ref_file.write(">" + str(genome_id))
 
     genome=[]
-    STR=generate_STR(length_chromosome);
+    #STR=generate_STR(length_chromosome);
         
-    STRpos=[]
+    #STRpos=[]
     genome=''
     #
     #    
@@ -71,12 +71,12 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
         for j in range(0, length_chromosome):
             genome+=random.choice(nucleo_base_list)
                
-        for j in range(len(STR)):
+        '''for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
             
             genome=  remove_range_from_string(genome, tmp, len(STR[j][1]))
             genome = insert_to_string(genome, tmp, str(STR[j][1]) )           
-            STRpos.append([tmp,STR[j][0],STR[j][1]])
+            STRpos.append([tmp,STR[j][0],STR[j][1]])'''
 
         for j in range(0, length_chromosome):
             # write a maximum of 80 alleles per line
@@ -88,7 +88,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     print "Reference genome complete"
     ref_file.close()
 
-    return (ref_file,STRpos)
+    return (ref_file)
 
 
 
@@ -100,7 +100,7 @@ def invert_str(arr, index, size):
 
 def usage(name):
     print "USAGE: python " + str(
-        name) + " <genome_id> <#chromosomes> <chromosome_size x 1M>"
+        name) + " <genome_id> <#chromosomes> <chromosome_size> <read_coverage or 0 for spectrum>"
 
 def modSTR(genome, STR):
     fullSTR=[]
@@ -137,6 +137,14 @@ def modSTR(genome, STR):
     return genome, INS, DEL, fullSTR
         
         
+def choose_and_remove( items):
+    # pick an item index
+    if items:
+        index = random.randrange( len(items) )
+        return items.pop(index)
+    # nothing left!
+    return None
+
 ################################# START OF SCRIPT ###################################
 if len(sys.argv) < 4:
     usage(sys.argv[0])
@@ -145,7 +153,8 @@ if len(sys.argv) < 4:
 # get parameters from console
 genome_id = str(sys.argv[1])
 num_chromosomes = int(sys.argv[2])
-chromosome_size = int(sys.argv[3]) * 1000000
+chromosome_size = int(sys.argv[3])
+read_coverage = int(sys.argv[4])
 
 print "\ngenome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)
@@ -161,7 +170,7 @@ fullSNP = []
 fullSTR = []
 
 # create unaltered reference genome
-baseFile, STR = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
+baseFile = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
@@ -192,21 +201,21 @@ for chromosome in range(1, num_chromosomes + 1):
     baseFileList=baseFileList.replace("\n","")
     
     #Modify the STRs
-    baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
-    fullSTR.append(strList)
+    #baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
+    #fullSTR.append(strList)
 
     #Copy Numbers
     #Sequence of random length between 20-50
     copyIndex = []
     copyLen = []
-    print "\tGenerating copies..."
+    '''print "\tGenerating copies..."
     for copyLoop in range(0, 1):
         copyLen.append(random.randint(20, 50))
         copyIndex.append(
             int(random.random() * (chromosome_size - copyLen[copyLoop])))
 
         #0.001% of the time the string is copied
-        for i in range(0, int(chromosome_size * 0.00001)):
+        for i in range(0, int(chromosome_size * 0.0005)):
             temp = (int(random.random() * (chromosome_size - copyLen[copyLoop])))
             write = 1
             for j in range(0, len(copyIndex) - 1):
@@ -227,7 +236,7 @@ for chromosome in range(1, num_chromosomes + 1):
     invIndex = []
     orig = []
     print "\tGenerating inversions..."
-    for invLoop in range(0, int(0.00001 * chromosome_size)):
+    for invLoop in range(0, int(0.0005 * chromosome_size)):
         write = 1
         temp = int(random.random() * (chromosome_size - copyLen[copyLoop]))
         invLen = random.randint(20, 50)
@@ -249,7 +258,7 @@ for chromosome in range(1, num_chromosomes + 1):
     # Sort invIndex by the index of the inversion
     invIndex = sorted(invIndex, key=lambda invIndex: invIndex[:][1])
 
-    fullINV.append(invIndex)
+    fullINV.append(invIndex)'''
     
     #INS/DELS
 
@@ -258,7 +267,7 @@ for chromosome in range(1, num_chromosomes + 1):
     # Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
     # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
     print "\tGenerating indels..."
-    sectionLen = 1000 # int(chromosome_size * 0.001 * 2)
+    sectionLen = 1000
     for i in range(0, int(chromosome_size / sectionLen)):
 
         # Make deletions in i-th section
@@ -358,110 +367,112 @@ for chromosome in range(1, num_chromosomes + 1):
     # File to hold reads from 1 million char sequence
     print "\tGenerating reads..."
     readsFile.write(">chr" + str(chromosome) + "\n")
-    for i in range(0, int(chromosome_size * 0.15)):
-        # First read
-        startIndexPart1 = (int(random.random() * (chromosome_size - 210)))
-        randomGap = random.randint(90, 110)
-        # Second read
-        startIndexPart2 = startIndexPart1 + randomGap + 1
-        readList = baseFileList[startIndexPart1:startIndexPart1 + 210]
-
-        # 1% error in reads 10% reads are garbage
-        # Get value between 0 and 1
-        randomReadCondition = random.random()
-
-        #Throw in an error in 1% of the read length 200
-        errors = int(0.01 * 200)
-
-        for i in range(0, errors):
-            #pick an index
-            randomIndex = random.randint(0, 99)
-            if randomIndex < 50:
-                pass
-            else:
-                randomIndex += randomGap - 50
-
-            randomReadError = random.choice(nucleo_base_list)
-            while randomReadError == readList[randomIndex]:
+    
+    #if we want just a general read_coverageX coverage
+    if(read_coverage!=0):
+        for i in range(0, int(chromosome_size * read_coverage/200)):
+            
+            # First read
+            startIndexPart1 = (int(random.random() * (chromosome_size - 210)))
+            randomGap = random.randint(90, 110)
+            # Second read
+            startIndexPart2 = startIndexPart1 + randomGap + 1
+            readList = baseFileList[startIndexPart1:startIndexPart1 + 210]
+    
+            # 1% error in reads 10% reads are garbage
+            # Get value between 0 and 1
+            randomReadCondition = random.random()
+    
+            #Throw in an error in 1% of the read length 200
+            errors = int(0.01 * 200)
+    
+            for i in range(0, errors):
+                #pick an index
+                randomIndex = random.randint(0, 99)
+                if randomIndex < 50:
+                    pass
+                else:
+                    randomIndex += randomGap - 50
+    
                 randomReadError = random.choice(nucleo_base_list)
-
-                #Full Garbage Read
-        if 0.01 < randomReadCondition < 0.11:
-            readList = ""
-            for i in range(0, 50):
-                readList += (random.choice(nucleo_base_list) )
-            for i in range(0, randomGap):
-                readList += '-'
-            for i in range(50, 100):
-                readList += random.choice(nucleo_base_list)
+                while randomReadError == readList[randomIndex]:
+                    randomReadError = random.choice(nucleo_base_list)
+    
+    
+            #Full Garbage Read
+            if 0.01 < randomReadCondition < 0.11:
+                readList = ""
+                for i in range(0, 50):
+                    readList += (random.choice(nucleo_base_list) )
+                for i in range(0, randomGap):
+                    readList += '-'
+                for i in range(50, 100):
+                    readList += random.choice(nucleo_base_list)
+                
+            readsFile.write(str(readList[:50]))
+            readsFile.write(',')
+            readsFile.write(str(readList[50 + randomGap:randomGap+100]))
+            readsFile.write("\n")
         
-        #for i in range(0, 10):
-        #    readList += random.choice(nucleo_base_list)    
+    else:    
+        #if we want spectrum
+        spectrum=[]
+        order=[]
+        for i in range(chromosome_size-190):
+            spectrum.append(i)
+            order.append(i)
+        #for i in range(chromosome_size-190):
+            #order.append(choose_and_remove(spectrum))
             
-            
-        readsFile.write(str(readList[:50]))
-        readsFile.write(',')
-        readsFile.write(str(readList[50 + randomGap:randomGap+100]))
-        readsFile.write("\n")
-
-
-# create answer key
-print "Creating answer key..."
-baseAnswerFile = open("ans_" + genome_id + ".txt", "w")
-baseAnswerFile.write(">")
-baseAnswerFile.write(str(genome_id))
-baseAnswerFile.write("\n")
-
-#copies
-baseAnswerFile.write(">COPY: \n")
-for i in range(0, num_chromosomes):
-    baseAnswerFile.write(str(i + 1) + "," + str(fullCOPYseq[i]))
-    for j in range(len(fullCOPY[i])):
-        baseAnswerFile.write("," + str(fullCOPY[i][j]))
-    baseAnswerFile.write("\n")
-
-#inversions
-baseAnswerFile.write(">INVERSION: \n")
-for i in range(0, num_chromosomes):
-    for j in range(0, len(fullINV[i])):
-        baseAnswerFile.write(str(i + 1) + "," + str(fullINV[i][j][0]) + "," + (str)(
-            fullINV[i][j][1]) + "\n")
-#STR
-STRFile=open("STRtest.txt", "w")
-
-baseAnswerFile.write(">STR: \n")
-for i in range(0, num_chromosomes):
-    for j in range(0, len(fullSTR[i])):
-        baseAnswerFile.write(str(i + 1) +","+str(
-                    fullSTR[i][j][1])+ ","+str(len(fullSTR[i][j][2])/len(fullSTR[i][j][1])) + ","+str(fullSTR[i][j][0])+"\n")
+        for i in range(len(order)):
+            # First read
+            startIndexPart1 = (order[i])
+            if(order[i]>chromosome_size-210):
+                randomGap = random.randint(90,chromosome_size-order[i]-100)
+            else:
+                randomGap = random.randint(90, 110)
+            # Second read
+            startIndexPart2 = startIndexPart1 + randomGap + 1
+            readList = baseFileList[startIndexPart1:startIndexPart1 + 210]
+    
+            # 1% error in reads 10% reads are garbage
+            # Get value between 0 and 1
+            randomReadCondition = random.random()
+    
+            #Throw in an error in 1% of the read length 200
+            errors = int(0.01 * 200)
+    
+            for i in range(0, errors):
+                #pick an index
+                randomIndex = random.randint(0, 99)
+                if randomIndex < 50:
+                    pass
+                else:
+                    randomIndex += randomGap - 50
+    
+                randomReadError = random.choice(nucleo_base_list)
+                while randomReadError == readList[randomIndex]:
+                    randomReadError = random.choice(nucleo_base_list)
+    
+    
+            #Full Garbage Read
+            if 0.01 < randomReadCondition < 0.11:
+                readList = ""
+                for i in range(0, 50):
+                    readList += (random.choice(nucleo_base_list) )
+                for i in range(0, randomGap):
+                    readList += '-'
+                for i in range(50, 100):
+                    readList += random.choice(nucleo_base_list)
+                
+            readsFile.write(str(readList[:50]))
+            readsFile.write(',')
+            readsFile.write(str(readList[50 + randomGap:randomGap+100]))
+            readsFile.write("\n")            
+    
         
-        STRFile.write(str(i + 1) +"," + (str)(
-                    fullSTR[i][j][0]) + ","+str(fullSTR[i][j][2])+ "\n")  
+    
 
-STRFile.close()
-#inserts
-baseAnswerFile.write(">INSERT:\n")
-for i in range(0, num_chromosomes):
-    for j in range(0, len(fullINS[i])):
-        baseAnswerFile.write(str(i + 1) + "," + str(fullINS[i][j][0]) + "," + str(fullINS[i][j][1]))
-        baseAnswerFile.write("\n")
-        #deletes
-baseAnswerFile.write(">DELETE:\n")
-for i in range(0, num_chromosomes):
-    for j in range(0, len(fullDEL[i])):
-        baseAnswerFile.write(
-            str(i + 1) + "," + str(fullDEL[i][j][0]) + "," + str(fullDEL[i][j][1]))
-        baseAnswerFile.write("\n")
-
-        #snps
-baseAnswerFile.write(">SNP")
-for i in range(0, num_chromosomes):
-    for j in range(0, len(fullSNP[i])):
-        baseAnswerFile.write("\n" + str(i + 1) + "," + str(fullSNP[i][j][0]) + ',')
-        baseAnswerFile.write(str(fullSNP[i][j][1]) + ',')
-        baseAnswerFile.write(str(fullSNP[i][j][2]))
-
-baseAnswerFile.close()
 readsFile.close()
 baseFile2.close()
 print "DONE"

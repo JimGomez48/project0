@@ -48,7 +48,16 @@ def generate_STR(length):
         STR.append([temp,temp*copies])
     return STR
 
+
+def generate_ALU(length):
+    ALU=''
+    for i in range(300):
+        ALU += random.choice(nucleo_base_list)   
+    return ALU
+
 def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
+    truechm=num_chromosomes
+    num_chromosomes=1
     """
     Generates a random reference genome with the specified number of chromosomes,
     each of length length_chromosome
@@ -58,19 +67,26 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     ref_file.write(">" + str(genome_id))
 
     genome=[]
-    STR=generate_STR(length_chromosome);
-        
+    STR=generate_STR(length_chromosome)
+    #ALU=generate_ALU(length_chromosome)
     STRpos=[]
+    ALUpos=[]
     genome=''
     #
     #    
     #Generate the string, then write it
     for i in range(1, num_chromosomes + 1):
-        ref_file.write("\n>chr" + str(i) + "\n")
+        ref_file.write("\n>chr" + str(truechm) + "\n")
         #Generate the string
         for j in range(0, length_chromosome):
             genome+=random.choice(nucleo_base_list)
                
+        '''for j in range(int(length_chromosome*0.1/300)):
+            tmp=random.randint(0,length_chromosome-len(ALU))
+            genome=  remove_range_from_string(genome, tmp, len(ALU)) #add the ALU
+            genome = insert_to_string(genome, tmp, str(ALU) )               
+            ALUpos.append([tmp, str(ALU)])'''
+            
         for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
             
@@ -88,7 +104,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     print "Reference genome complete"
     ref_file.close()
 
-    return (ref_file,STRpos)
+    return (ref_file,STRpos, ALUpos)
 
 
 
@@ -133,8 +149,21 @@ def modSTR(genome, STR):
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2])])
             
     fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
-    
     return genome, INS, DEL, fullSTR
+
+def modALU (genome, ALU):
+    for i in range(10):# insert 10 more ALUs
+        randomPos=random.randint(0,len(genome)-len(ALU[0][1]))
+        ALUtemp=ALU[0][1]
+        for j in range(int(len(ALU[0][1])*0.3)):#30% mutations
+            tmp=random.randint(0,len(ALUtemp))
+            ALUtemp=remove_from_string(ALUtemp,tmp)
+            ALUtemp=insert_to_string(ALUtemp,tmp,random.choice(nucleo_base_list))
+        genome= remove_range_from_string(genome, randomPos, len(ALUtemp))
+        genome= insert_to_string(genome, randomPos, ALUtemp)
+        ALU.append([randomPos, str(ALUtemp)])
+        ALU = sorted(ALU, key = lambda ALU: int(ALU[:][0]))
+    return genome, ALU            
         
         
 ################################# START OF SCRIPT ###################################
@@ -159,9 +188,10 @@ fullINS = []
 fullDEL = []
 fullSNP = []
 fullSTR = []
+fullALU = []
 
 # create unaltered reference genome
-baseFile, STR = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
+baseFile, STR, ALU = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
@@ -174,7 +204,7 @@ readsFile.write(">" + genome_id + "\n")
 # skip the first two '>' labels in the ref genome file
 baseFile.readline()
 baseFile.readline()
-for chromosome in range(1, num_chromosomes + 1):
+for chromosome in range(num_chromosomes, num_chromosomes + 1):
     counter = 0
     print "Generating mutations in chromosome: " + str(chromosome)
 
@@ -182,6 +212,7 @@ for chromosome in range(1, num_chromosomes + 1):
     insList = []
     delList = []
     strList = []
+    #aluList = []
     # get reference genome as single string
     baseFileList = ""
     for line in baseFile:
@@ -192,7 +223,10 @@ for chromosome in range(1, num_chromosomes + 1):
     baseFileList=baseFileList.replace("\n","")
     
     #Modify the STRs
+    #baseFileList, aluList = modALU(baseFileList,ALU)
     baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
+
+    #fullALU.append(aluList)
     fullSTR.append(strList)
 
     #Copy Numbers
@@ -414,50 +448,45 @@ baseAnswerFile.write("\n")
 
 #copies
 baseAnswerFile.write(">COPY: \n")
-for i in range(0, num_chromosomes):
-    baseAnswerFile.write(str(i + 1) + "," + str(fullCOPYseq[i]))
+for i in range(0, 1):
+    baseAnswerFile.write(str(num_chromosomes) + "," + str(fullCOPYseq[i]))
     for j in range(len(fullCOPY[i])):
         baseAnswerFile.write("," + str(fullCOPY[i][j]))
     baseAnswerFile.write("\n")
 
 #inversions
 baseAnswerFile.write(">INVERSION: \n")
-for i in range(0, num_chromosomes):
+for i in range(0,1):
     for j in range(0, len(fullINV[i])):
-        baseAnswerFile.write(str(i + 1) + "," + str(fullINV[i][j][0]) + "," + (str)(
+        baseAnswerFile.write(str(num_chromosomes) + "," + str(fullINV[i][j][0]) + "," + (str)(
             fullINV[i][j][1]) + "\n")
 #STR
-STRFile=open("STRtest.txt", "w")
 
 baseAnswerFile.write(">STR: \n")
-for i in range(0, num_chromosomes):
+for i in range(0, 1):
     for j in range(0, len(fullSTR[i])):
-        baseAnswerFile.write(str(i + 1) +","+str(
+        baseAnswerFile.write(str(num_chromosomes) +","+str(
                     fullSTR[i][j][1])+ ","+str(len(fullSTR[i][j][2])/len(fullSTR[i][j][1])) + ","+str(fullSTR[i][j][0])+"\n")
-        
-        STRFile.write(str(i + 1) +"," + (str)(
-                    fullSTR[i][j][0]) + ","+str(fullSTR[i][j][2])+ "\n")  
 
-STRFile.close()
 #inserts
 baseAnswerFile.write(">INSERT:\n")
-for i in range(0, num_chromosomes):
+for i in range(0, 1):
     for j in range(0, len(fullINS[i])):
-        baseAnswerFile.write(str(i + 1) + "," + str(fullINS[i][j][0]) + "," + str(fullINS[i][j][1]))
+        baseAnswerFile.write(str(num_chromosomes) + "," + str(fullINS[i][j][0]) + "," + str(fullINS[i][j][1]))
         baseAnswerFile.write("\n")
         #deletes
 baseAnswerFile.write(">DELETE:\n")
-for i in range(0, num_chromosomes):
+for i in range(0, 1):
     for j in range(0, len(fullDEL[i])):
         baseAnswerFile.write(
-            str(i + 1) + "," + str(fullDEL[i][j][0]) + "," + str(fullDEL[i][j][1]))
+            str(num_chromosomes) + "," + str(fullDEL[i][j][0]) + "," + str(fullDEL[i][j][1]))
         baseAnswerFile.write("\n")
 
         #snps
-baseAnswerFile.write(">SNP")
-for i in range(0, num_chromosomes):
+baseAnswerFile.write(">SNP:")
+for i in range(0, 1):
     for j in range(0, len(fullSNP[i])):
-        baseAnswerFile.write("\n" + str(i + 1) + "," + str(fullSNP[i][j][0]) + ',')
+        baseAnswerFile.write("\n" + str(num_chromosomes) + "," + str(fullSNP[i][j][0]) + ',')
         baseAnswerFile.write(str(fullSNP[i][j][1]) + ',')
         baseAnswerFile.write(str(fullSNP[i][j][2]))
 

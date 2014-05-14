@@ -48,6 +48,13 @@ def generate_STR(length):
         STR.append([temp,temp*copies])
     return STR
 
+#generates the base ALU
+def generate_ALU(length):
+    ALU=''
+    for i in range(300):
+        ALU += random.choice(nucleo_base_list)   
+    return ALU
+
 def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     """
     Generates a random reference genome with the specified number of chromosomes,
@@ -58,9 +65,10 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     ref_file.write(">" + str(genome_id))
 
     genome=[]
-    STR=generate_STR(length_chromosome);
-        
+    STR=generate_STR(length_chromosome)
+    ALU=generate_ALU(length_chromosome)
     STRpos=[]
+    ALUpos=[]
     genome=''
     #
     #    
@@ -71,6 +79,19 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
         for j in range(0, length_chromosome):
             genome+=random.choice(nucleo_base_list)
                
+        for j in range(int(length_chromosome*0.1/300)): # 10% of the genome
+            tmp=random.randint(0,length_chromosome-len(ALU)) 
+            
+            ALUtemp=ALU
+            for k in range(int(len(ALU)*0.3)):#30% mutations
+                temp=random.randint(0,len(ALUtemp)-1)
+                ALUtemp=remove_from_string(ALUtemp,temp)
+                ALUtemp=insert_to_string(ALUtemp,temp,random.choice(nucleo_base_list))            
+            
+            genome=  remove_range_from_string(genome, tmp, len(ALUtemp)) #add the ALU
+            genome = insert_to_string(genome, tmp, str(ALUtemp) )               
+            ALUpos.append([tmp, str(ALUtemp)])
+            
         for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
             
@@ -88,7 +109,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     print "Reference genome complete"
     ref_file.close()
 
-    return (ref_file,STRpos)
+    return (ref_file,STRpos, ALUpos)
 
 
 
@@ -133,8 +154,23 @@ def modSTR(genome, STR):
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2])])
             
     fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
-    
     return genome, INS, DEL, fullSTR
+
+def modALU (genome, ALU, length):
+    for i in range(int(length/100000)+1):# insert 1 every 100,000
+        randomPos=random.randint(0,len(genome)-len(ALU[0][1]))
+        ALUtemp=ALU[0][1]
+        for j in range(int(len(ALU[0][1])*0.3)):#30% mutations
+            tmp=random.randint(0,len(ALUtemp)-1)
+            ALUtemp=remove_from_string(ALUtemp,tmp)
+            ALUtemp=insert_to_string(ALUtemp,tmp,random.choice(nucleo_base_list))
+            
+        genome= remove_range_from_string(genome, randomPos, len(ALUtemp))
+        genome= insert_to_string(genome, randomPos, ALUtemp)
+        print len(ALUtemp)
+        ALU.append([randomPos, str(ALUtemp)])
+        ALU = sorted(ALU, key = lambda ALU: int(ALU[:][0]))
+    return genome, ALU            
         
         
 ################################# START OF SCRIPT ###################################
@@ -159,9 +195,10 @@ fullINS = []
 fullDEL = []
 fullSNP = []
 fullSTR = []
+fullALU = []
 
 # create unaltered reference genome
-baseFile, STR = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
+baseFile, STR, ALU = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
@@ -182,6 +219,7 @@ for chromosome in range(1, num_chromosomes + 1):
     insList = []
     delList = []
     strList = []
+    aluList = []
     # get reference genome as single string
     baseFileList = ""
     for line in baseFile:
@@ -192,7 +230,10 @@ for chromosome in range(1, num_chromosomes + 1):
     baseFileList=baseFileList.replace("\n","")
     
     #Modify the STRs
+    baseFileList, aluList = modALU(baseFileList,ALU, chromosome_size)
     baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
+
+    fullALU.append(aluList)
     fullSTR.append(strList)
 
     #Copy Numbers
@@ -439,6 +480,15 @@ for i in range(0, num_chromosomes):
                     fullSTR[i][j][0]) + ","+str(fullSTR[i][j][2])+ "\n")  
 
 STRFile.close()
+
+#ALUs
+baseAnswerFile.write(">ALU: \n")
+for i in range(0, num_chromosomes):
+    for j in range(0, len(fullALU[i])):
+        baseAnswerFile.write(str(i + 1) +","+str(
+                    fullALU[i][j][1])+ ","+str(fullALU[i][j][0])+"\n")
+
+
 #inserts
 baseAnswerFile.write(">INSERT:\n")
 for i in range(0, num_chromosomes):

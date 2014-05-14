@@ -2,6 +2,11 @@
 Created on Apr 14, 2014
 
 @author: Jorge Munoz, Gabriel Alsheikh, and James Gomez
+
+Human genome version of the generator. Takes in raw chromosome files and 
+processes those, rather than creating a random sequence for each chromosome. 
+
+Data available at: https://drive.google.com/file/d/0B0PoPlbhP0P8YmZEYm9ZSTR2Tm8/edit?usp=sharing
 """
 
 import random
@@ -48,7 +53,7 @@ def generate_STR(length):
         STR.append([temp,temp*copies])
     return STR
 
-def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
+def generate_ref_genome(raw_file_data, genome_id, num_chromosomes, length_chromosome):
     """
     Generates a random reference genome with the specified number of chromosomes,
     each of length length_chromosome
@@ -68,8 +73,8 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     for i in range(1, num_chromosomes + 1):
         ref_file.write("\n>chr" + str(i) + "\n")
         #Generate the string
-        for j in range(0, length_chromosome):
-            genome+=random.choice(nucleo_base_list)
+        #for j in range(0, length_chromosome):
+        genome=raw_file_data
                
         for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
@@ -100,7 +105,7 @@ def invert_str(arr, index, size):
 
 def usage(name):
     print "USAGE: python " + str(
-        name) + " <genome_id> <#chromosomes> <chromosome_size x 1M>"
+        name) + " <raw_file_name> <genome_id> <#chromosomes>"
 
 def modSTR(genome, STR):
     fullSTR=[]
@@ -132,22 +137,28 @@ def modSTR(genome, STR):
         if(tmp==0):
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2])])
             
-    fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
-    
+        fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
+
     return genome, INS, DEL, fullSTR
-        
-        
+
+
 ################################# START OF SCRIPT ###################################
 if len(sys.argv) < 4:
     usage(sys.argv[0])
     sys.exit()
 
 # get parameters from console
-genome_id = str(sys.argv[1])
-num_chromosomes = int(sys.argv[2])
-chromosome_size = int(sys.argv[3]) * 1000000
+raw_file_name = str(sys.argv[1])
+genome_id = str(sys.argv[2])
+num_chromosomes = int(sys.argv[3])
+raw_file = open(raw_file_name + ".txt", "r")
+raw_file_data = raw_file.read()
+raw_file.close()
 
-print "\ngenome-ID:\t" + genome_id
+chromosome_size = len(raw_file_data)
+
+print "\nraw-file-name:\t" + raw_file_name
+print "\genome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)
 print "chrom-size:\t" + str(chromosome_size)
 
@@ -161,7 +172,7 @@ fullSNP = []
 fullSTR = []
 
 # create unaltered reference genome
-baseFile, STR = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
+baseFile, STR = generate_ref_genome(raw_file_data, genome_id, num_chromosomes, chromosome_size)
 
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
@@ -258,7 +269,7 @@ for chromosome in range(1, num_chromosomes + 1):
     # Insertions/Deletions, split into sections of 2,000 (0.1% ins/del)
     # 500 below comes from Sequence length / (Seq. length * 0.1% * 2) = 1 / (0.1% * 2)
     print "\tGenerating indels..."
-    sectionLen = 1000 # int(chromosome_size * 0.001 * 2)
+    sectionLen = int(chromosome_size * 0.001 * 2)
     for i in range(0, int(chromosome_size / sectionLen)):
 
         # Make deletions in i-th section

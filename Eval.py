@@ -25,6 +25,27 @@ def findIndex(arr, temp):
         if ( arr[i][0:len(temp)]==temp):
             return i
 
+def needleman_wunsch(n, m):
+    rows = len(n) + 1
+    cols = len(m) + 1
+    matrix = []
+    for row in range(rows):
+        matrix.append(list())
+        for col in range(cols):
+            matrix[row].append(0)
+    for row in range(1, rows):
+        for col in range(1, cols):
+            top = matrix[row-1][col]
+            topleft = matrix[row-1][col-1]
+            left = matrix[row][col-1]
+            if n[row-1] == m[col-1]:
+                charscore = 1
+            else:
+                charscore = -1
+            max_val = max(top-1, topleft+charscore, left-1)
+            matrix[row][col] = max_val
+    return matrix[rows-1][cols-1]
+
 #criteria to grade the copy portion
 #stud contains the student answers
 #key contains the answer key
@@ -34,8 +55,244 @@ def findIndex(arr, temp):
 
 
 #
-# TEST AGAIN FOR MULTIPLE COPIESSS
+# TEST AGAIN FOR MULTIPLE COPIES
 #
+
+#SNP score function
+def SNPgrade(stud, key, stud_index):
+    keyIndex = findIndex(key,">SNP")
+    keyIndex += 1 # index of first answer
+    # find end of answers in key
+    i = keyIndex
+    while (i < len(key) and key[i][0] != '>'):
+        i += 1
+    key_answers = []
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')
+        key_answers.append(split_ans)
+    answer_key_length = len(key_answers)
+    i = stud_index
+    # find end of student answers
+    while (i < len(stud) and stud[i][0]!='>'):
+        i += 1
+    student_answers = []
+    for ans in stud[stud_index:i]:
+        student_answers.append(ans.split(','))
+
+    # Sort by increasing index (the second part of each line)
+    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[3])))
+
+    score = 0
+    max_posn_diff = 5
+    for student_ans in student_answers:
+        remove_list = []
+
+        #loop through remaining answer key entries to find the best match, if any
+        for key_ans in key_answers:
+            #if this key has already been passed, then mark it for removal
+            if int(student_ans[3]) > int(key_ans[3])+max_posn_diff:
+                remove_list.append(key_ans)
+
+            elif int(student_ans[3]) >= int(key_ans[3])-max_posn_diff and \
+               int(student_ans[3]) <= int(key_ans[3])+max_posn_diff and \
+                    student_ans[2] == key_ans[2]:
+                score += 1
+                remove_list.append(key_ans)
+                break
+
+            #once answers keys that are out of range are reached, then break the for loop
+            elif int(student_ans[3]) < int(key_ans[3])-max_posn_diff:
+                break
+
+        #get rid of the unneeded answer key entries
+        for old_key in remove_list:
+            key_answers.remove(old_key)
+
+    return grade(len(student_answers), score, answer_key_length)
+
+def STRgrade(stud, key, stud_index):
+    keyIndex = findIndex(key,">STR")
+    keyIndex += 1 # index of first answer
+    # find end of answers in key
+    i = keyIndex
+    while (i < len(key) and key[i][0] != '>'):
+        i += 1
+    key_answers = []
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')
+        key_answers.append(split_ans)
+    answer_key_length = len(key_answers)
+    i = stud_index
+    # find end of student answers
+    while (i < len(stud) and stud[i][0]!='>'):
+        i += 1
+    student_answers = []
+    for ans in stud[stud_index:i]:
+        student_answers.append(ans.split(','))
+
+    # Sort by increasing index (the second part of each line)
+    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[3])))
+
+    score = 0
+    max_posn_diff = 20
+    for student_ans in student_answers:
+        remove_list = []
+
+        #loop through remaining answer key entries to find the best match, if any
+        for key_ans in key_answers:
+            #if this key has already been passed, then mark it for removal
+            if int(student_ans[3]) > int(key_ans[3])+max_posn_diff:
+                remove_list.append(key_ans)
+
+            elif int(student_ans[3]) >= int(key_ans[3])-max_posn_diff and \
+               int(student_ans[3]) <= int(key_ans[3])+max_posn_diff:
+                score += 0.5
+                ans_sequence = ""
+                student_sequence = ""
+                for rpt in range(0,int(key_ans[2])):
+                    ans_sequence += key_ans[1]
+                for rpt in range(0,int(student_ans[2])):
+                    student_sequence += key_ans[1]
+                max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
+                align_score = needleman_wunsch(ans_sequence, student_sequence)
+                align_score = align_score
+                if align_score < 0:
+                  align_score = 0
+                adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
+                adj_score = (adj_score**4) #since repeats only vary -2 to 2, its fairly easy to get close, so increasing penalty for error
+                score += adj_score / 2
+                remove_list.append(key_ans)
+                break
+
+            #once answers keys that are out of range are reached, then break the for loop
+            elif int(student_ans[3]) < int(key_ans[3])-max_posn_diff:
+                break
+
+        #get rid of the unneeded answer key entries
+        for old_key in remove_list:
+            key_answers.remove(old_key)
+
+    return grade(len(student_answers), score, answer_key_length)
+
+#criteria to grade the inversion portion
+def INVgrade ( stud, key, stud_index):
+    keyIndex=findIndex(key,">INVERSION")
+    keyIndex += 1 # index of first answer
+    # find end of answers in key
+    i = keyIndex
+    while (i < len(key) and key[i][0] != '>'):
+        i += 1
+    key_answers = []
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')
+        key_answers.append(split_ans)
+    answer_key_length = len(key_answers)
+    i = stud_index
+    # find end of student answers
+    while (i < len(stud) and stud[i][0]!='>'):
+        i += 1
+    student_answers = []
+    for ans in stud[stud_index:i]:
+        student_answers.append(ans.split(','))
+
+    # Sort by increasing index (the second part of each line)
+    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[2])))
+
+    score = 0
+    max_posn_diff = 5
+    for student_ans in student_answers:
+        remove_list = []
+
+        #loop through remaining answer key entries to find the best match, if any
+        for key_ans in key_answers:
+            #if this key has already been passed, then mark it for removal
+            if int(student_ans[2]) > int(key_ans[2])+max_posn_diff:
+                remove_list.append(key_ans)
+
+            elif int(student_ans[2]) >= int(key_ans[2])-max_posn_diff and \
+               int(student_ans[2]) <= int(key_ans[2])+max_posn_diff:
+                score += 0.5
+                ans_sequence = key_ans[1]
+                student_sequence = student_ans[1]
+                max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
+                align_score = needleman_wunsch(ans_sequence, student_sequence)
+                align_score = align_score
+                if align_score < 0:
+                  align_score = 0
+                adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
+                score += adj_score / 2
+                remove_list.append(key_ans)
+                break
+
+            #once answers keys that are out of range are reached, then break the for loop
+            elif int(student_ans[2]) < int(key_ans[2])-max_posn_diff:
+                break
+
+        #get rid of the unneeded answer key entries
+        for old_key in remove_list:
+            key_answers.remove(old_key)
+
+    return grade(len(student_answers), score, answer_key_length)
+
+#criteria to grade the insert portion
+def INDELgrade ( stud, key, stud_index, insert_or_delete):
+    keyIndex=findIndex(key,insert_or_delete)
+    keyIndex += 1 # index of first answer
+    # find end of answers in key
+    i = keyIndex
+    while (i < len(key) and key[i][0] != '>'):
+        i += 1
+    key_answers = []
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')
+        key_answers.append(split_ans)
+    answer_key_length = len(key_answers)
+    i = stud_index
+    # find end of student answers
+    while (i < len(stud) and stud[i][0]!='>'):
+        i += 1
+    student_answers = []
+    for ans in stud[stud_index:i]:
+        student_answers.append(ans.split(','))
+
+    # Sort by increasing index (the second part of each line)
+    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[2])))
+
+    score = 0
+    max_posn_diff = 5
+    for student_ans in student_answers:
+        remove_list = []
+
+        #loop through remaining answer key entries to find the best match, if any
+        for key_ans in key_answers:
+            #if this key has already been passed, then mark it for removal
+            if int(student_ans[2]) > int(key_ans[2])+max_posn_diff:
+                remove_list.append(key_ans)
+
+            elif int(student_ans[2]) >= int(key_ans[2])-max_posn_diff and \
+               int(student_ans[2]) <= int(key_ans[2])+max_posn_diff:
+                score += 0.5
+                ans_sequence = key_ans[1]
+                student_sequence = student_ans[1]
+                max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
+                align_score = needleman_wunsch(ans_sequence, student_sequence)
+                align_score = align_score
+                if align_score < 0:
+                  align_score = 0
+                adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
+                score += adj_score / 2
+                remove_list.append(key_ans)
+                break
+
+            #once answers keys that are out of range are reached, then break the for loop
+            elif int(student_ans[2]) < int(key_ans[2])-max_posn_diff:
+                break
+
+        #get rid of the unneeded answer key entries
+        for old_key in remove_list:
+            key_answers.remove(old_key)
+
+    return grade(len(student_answers), score, answer_key_length)
 
 def COPYgrade ( stud, key, index):
     ans=findIndex(key,">COPY")+1
@@ -70,284 +327,24 @@ def COPYgrade ( stud, key, index):
             studTemp=[0]*1000 #make a temp list
             for j in range(index, index+keynums):
                 studTemp=stud[j].split(',')
-                if(ansTemp[0]==studTemp[0] and ansTemp[1]==studTemp[1]):
-                    for k in range(2, len(studTemp)):
-                        if(int(ansTemp[i]) >= int(studTemp[k])-5 and int(ansTemp[i]) <= int(studTemp[k])+5):
-                            correct+=1
-                            done=1
-                            break
-                    if(done==1):break
+                if ansTemp[0]==studTemp[0]:
+                    max_length = max(len(ansTemp[1]), len(studTemp[1]))
+                    if needleman_wunsch(ansTemp[1], studTemp[1]) / float(max_length) > 0.8: #correct if over 80% match
+                        for k in range(2, len(studTemp)):
+                            if(int(ansTemp[i]) >= int(studTemp[k])-5 and int(ansTemp[i]) <= int(studTemp[k])+5):
+                                correct+=1
+                                done=1
+                                break
+                if(done==1):
+                    break
 
     return grade(studTot, correct, total)
-
-#criteria to grade the inversion portion
-def INVgrade ( stud, key, index):
-    ans=findIndex(key,">INVERSION")
-    correct=0
-    total=0
-    studTot=0
-    i=index
-    while (i < len(stud) and stud[i][0]!='>'):
-        studTot+=1
-        i+=1
-    ans+=1
-
-    # Sort Inversions
-    sortStud = []
-    # Split each line into 3 parts
-    for k in range(index, index+studTot):
-        tempSort = stud[k].split(',')
-        tempSort[2] = int(tempSort[2])
-        sortStud.append(tempSort)
-
-    # Sort by increasing index (the third part of each line)
-    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][2]))
-
-    # After sorting, combine the parts together again into one string line
-    for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
-
-    # Copy the sorted section back into the student answer array
-    stud[index:index+studTot] = sortStud
-    tmpIndex=index-1
-    while (ans < len(key) and key[ans][0]!='>'):
-        total+=1
-        ansTemp=key[ans].split(',')
-        ans+=1
-        index=tmpIndex+1
-
-
-        if(index<len(stud)):
-            studTemp = stud[index].split(',')
-
-        while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
-                correct+=1
-                tmpIndex=index
-                break
-            tmpIndex=index
-            index += 1
-            if(index<len(stud)):
-                studTemp = stud[index].split(',')
-
-    return grade(studTot, correct, total)
-
-#criteria to grade the insertion portion
-def INSgrade ( stud, key, index):
-    ans=findIndex(key,">INSERT")
-    correct=0
-    total=0
-    studTot=0
-    i=index
-    while (i < len(stud) and stud[i][0]!='>'):
-        studTot+=1
-        i+=1
-    ans+=1
-
-    # Sort Insertions
-    sortStud = []
-    # Split each line into 3 parts
-    for k in range(index, index+studTot):
-        tempSort = stud[k].split(',')
-        tempSort[2] = int(tempSort[2])
-        sortStud.append(tempSort)
-
-    # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][2]))
-
-    # After sorting, combine the parts together again into one string line
-    for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
-
-    # Copy the sorted section back into the student answer array
-    stud[index:index+studTot] = sortStud
-
-    tmpIndex=index-1
-    while (ans < len(key) and key[ans][0]!='>'):
-        total+=1
-        ansTemp=key[ans].split(',')
-        ans+=1
-        index=tmpIndex+1
-        if(index<len(stud)):
-            studTemp = stud[index].split(',')
-        while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
-                correct+=1
-                tmpIndex=index
-                break
-            tmpIndex=index
-            index += 1
-            if(index<len(stud)):
-                studTemp = stud[index].split(',')
-
-    return grade(studTot, correct, total)
-
-#criteria to grade the deletion portion
-def DELgrade ( stud, key, index):
-    ans=findIndex(key,">DELETE")
-    correct=0
-    total=0
-    studTot=0
-    i=index
-    while (i < len(stud) and stud[i][0]!='>'):
-        studTot+=1
-        i+=1
-    ans+=1
-
-    # Sort Insertions
-    sortStud = []
-    # Split each line into 3 parts
-    for k in range(index, index+studTot):
-        tempSort = stud[k].split(',')
-        tempSort[2] = int(tempSort[2])
-        sortStud.append(tempSort)
-
-    # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][2]))
-
-    # After sorting, combine the parts together again into one string line
-    for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + str(sortStud[k][2])
-
-    # Copy the sorted section back into the student answer array
-    stud[index:index+studTot] = sortStud
-
-    tmpIndex=index-1
-    while (ans < len(key) and key[ans][0]!='>'):
-        total+=1
-        ansTemp=key[ans].split(',')
-        ans+=1
-        index=tmpIndex+1
-
-        if(index<len(stud)):
-            studTemp = stud[index].split(',')
-        while(studTemp[0][0]!='>' and int(studTemp[2])<=int(ansTemp[2]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and int(ansTemp[2]) >= int(studTemp[2])-5 and int(ansTemp[2]) <= int(studTemp[2])+5):
-                correct+=1
-                tmpIndex=index
-                break
-            tmpIndex=index
-            index += 1
-            if(index<len(stud)):
-                studTemp = stud[index].split(',')
-
-    return grade(studTot, correct, total)
-
-#criteria to grade the SNP portion
-def SNPgrade ( stud, key, index):
-    ans=findIndex(key,">SNP")
-    correct=0
-    total=0
-    studTot=0
-    i=index
-    while (i < len(stud) and stud[i][0]!='>'):
-        studTot+=1
-        i+=1
-    ans+=1
-    # Sort SNPs
-    sortStud = []
-    # Split each line into 3 parts
-    for k in range(index, index+studTot):
-        tempSort = stud[k].split(',')
-        tempSort[3] = int(tempSort[3])
-        sortStud.append(tempSort)
-
-    # Sort by increasing index (the second part of each line)
-    sortStud = sorted(sortStud,key= lambda sortStud:(sortStud[:][0],sortStud[:][3]))
-
-    # After sorting, combine the parts together again into one string line
-    for k in range(0, len(sortStud)):
-        sortStud[k] = sortStud[k][0] + "," + sortStud[k][1] + "," + sortStud[k][2] + "," + str(sortStud[k][3])
-
-    # Copy the sorted section back into the student answer array
-    stud[index:index+studTot] = sortStud
-
-    tmpIndex=index-1
-    while (ans < len(key) and key[ans][0]!='>'):
-        total+=1
-        ansTemp=key[ans].split(',')
-        ans+=1
-        index=tmpIndex+1
-        if(index<len(stud)):
-            studTemp = stud[index].split(',')
-        while(studTemp[0][0]!='>' and int(studTemp[3])<=int(ansTemp[3]) and index<len(stud) and studTemp[0] == ansTemp[0]):
-            studTemp = stud[index].split(',')
-            if(int(ansTemp[0])==int(studTemp[0]) and ansTemp[1]==studTemp[1] and ansTemp[2]==studTemp[2] and int(ansTemp[3]) >= int(studTemp[3])-5 and int(ansTemp[3]) <= int(studTemp[3])+5):
-                correct+=1
-                tmpIndex=index
-                break
-            tmpIndex=index
-            index += 1
-            if(index<len(stud)):
-                studTemp = stud[index].split(',')
-    return grade(studTot, correct, total)
-    #calculate false positives
-
-def needleman_wunsch(n, m):
-    rows = len(n) + 1
-    cols = len(m) + 1
-    matrix = []
-    for row in range(rows):
-        matrix.append(list())
-        for col in range(cols):
-            matrix[row].append(0)
-    for row in range(rows):
-        for col in range(cols):
-            top = matrix[row-1][col]
-            topleft = matrix[row-1][col-1]
-            left = matrix[row][col-1]
-            if n[row-1] == m[col-1]:
-                charscore = 1
-            else:
-                charscore = -1
-            max_val = max(top-1, topleft+charscore, left-1)
-            matrix[row][col] = max_val
-    return matrix[rows-1][cols-1]
-
-def STRgrade(stud, key, stud_index):
-    print 'in STRgrade'
-    keyIndex = findIndex(key,">STR:")
-    keyIndex += 1 # index of first answer
-    # find end of answers in key
-    i = keyIndex
-    while (i < len(key) and key[i][0] != '>'):
-        i += 1
-    key_answers = []
-    for ans in key[keyIndex:i]:
-        split_ans = ans.split(',')
-        key_answers.append(split_ans)
-    i = stud_index
-    # find end of student answers
-    while (i < len(stud) and stud[i][0]!='>'):
-        i += 1
-    student_answers = []
-    for ans in stud[stud_index:i]:
-        student_answers.append(ans.split(','))
-    score = 0
-    for key_ans in key_answers:
-        for student_ans in student_answers:
-            if int(student_ans[3]) >= int(key_ans[3])-20 and \
-               int(student_ans[3]) <= int(key_ans[3])+20:
-                score += 0.5
-                ans_sequence = ""
-                student_sequence = ""
-                for rpt in range(0,int(key_ans[2])):
-                    ans_sequence += key_ans[1]
-                for rpt in range(0,int(student_ans[2])):
-                    student_sequence += key_ans[1]
-                max_align_score = len(ans_sequence)
-                align_score = needleman_wunsch(ans_sequence, student_sequence)
-                if align_score < 0:
-                  align_score = 0
-                score += (float(align_score)/(2*max_align_score))
-                break;
-    return grade(len(student_answers), score, len(key_answers))
 
 def Eval(answerKey, studentAns):
 
     # Open up student answers
     #studentAns = open(sys.argv[1], "r")
-    studAns = studentAns.readlines()
+    studAns = [line.rstrip() for line in studentAns]
     studentAns.close()
     copyGrade=0
     invGrade=0
@@ -355,6 +352,7 @@ def Eval(answerKey, studentAns):
     deleteGrade=0
     snpGrade=0
     strGrade=0
+    aluGrade=0
 
     for i in range(0,len(studAns)-1):
         #if (studAns[i][0:3]==">ID"):
@@ -362,36 +360,42 @@ def Eval(answerKey, studentAns):
             filename = studAns[i+1]
             filename=filename.translate(None,'\n>')
     #answerKey = open("ans_"+filename+".txt", "r")
-    ansKey = answerKey.readlines()
+    ansKey = [line.rstrip() for line in answerKey]
     answerKey.close()
 
     for i in range(0,len(studAns)-1):
         if (studAns[i][0:5]==">COPY"):
             copyGrade=COPYgrade(studAns,ansKey,i+1)
-            print "COPY grade: " + str(copyGrade)
+            #print "COPY grade: " + str(copyGrade)
         if (studAns[i][0:10]==">INVERSION"):
             invGrade=INVgrade(studAns,ansKey,i+1)
-            print "INVERSIONS grade: "+ str(invGrade)
+            #print "INVERSIONS grade: "+ str(invGrade)
         if (studAns[i][0:7]==">INSERT"):
-            insertGrade =INSgrade(studAns,ansKey,i+1)
-            print "INSERTIONS grade: "+ str(insertGrade)
+            insertGrade =INDELgrade(studAns,ansKey,i+1, ">INSERT")
+            #print "INSERTIONS grade: "+ str(insertGrade)
         if (studAns[i][0:7]==">DELETE"):
-            deleteGrade=DELgrade(studAns,ansKey,i+1)
-            print "DELETIONS grade: "+ str(deleteGrade)
+            deleteGrade=INDELgrade(studAns,ansKey,i+1, ">DELETE")
+            #print "DELETIONS grade: "+ str(deleteGrade)
         if (studAns[i][0:4]==">SNP"):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
-            print "SNP grade: "+ str(snpGrade)
+            #print "SNP grade: "+ str(snpGrade)
         if (studAns[i][0:4]==">STR"):
             strGrade=STRgrade(studAns,ansKey,i+1)
-            print "STR grade: "+ str(strGrade)
+            #print "STR grade: "+ str(strGrade)
+        if (studAns[i][0:4]==">ALU"):
+            aluGrade=INDELgrade(studAns,ansKey,i+1, ">ALU")
 
-    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade, 'STR': strGrade}
+    grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade,
+              'STR': strGrade, 'ALU': aluGrade}
     return grades
 
 def main():
     studentAns = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
     answerKey = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
     test= Eval(answerKey,studentAns)
+    for key in test:
+        print key + ' grade: ' + str(test[key])
+
 
 if __name__ == '__main__':
     main()
