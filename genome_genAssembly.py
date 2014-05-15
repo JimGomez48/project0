@@ -175,7 +175,7 @@ baseFile = generate_ref_genome(genome_id, num_chromosomes, chromosome_size)
 private = True
 baseFile = open("ref_" + genome_id + ".txt", "r")
 if private:
-    baseFile2 = open("private_" + genome_id + ".txt", "w")
+    baseFile2 = open("ans_" + genome_id + ".txt", "w")
     baseFile2.write(">" + genome_id + "\n")
 
 readsFile = open("reads_" + genome_id + ".txt", "w")
