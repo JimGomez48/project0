@@ -162,7 +162,6 @@ def STRgrade(stud, key, stud_index):
                     student_sequence += key_ans[1]
                 max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
                 align_score = needleman_wunsch(ans_sequence, student_sequence)
-                align_score = align_score
                 if align_score < 0:
                   align_score = 0
                 adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
@@ -223,7 +222,6 @@ def INVgrade ( stud, key, stud_index):
                 student_sequence = student_ans[1]
                 max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
                 align_score = needleman_wunsch(ans_sequence, student_sequence)
-                align_score = align_score
                 if align_score < 0:
                   align_score = 0
                 adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
@@ -283,7 +281,6 @@ def INDELgrade ( stud, key, stud_index, insert_or_delete):
                 student_sequence = student_ans[1]
                 max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
                 align_score = needleman_wunsch(ans_sequence, student_sequence)
-                align_score = align_score
                 if align_score < 0:
                   align_score = 0
                 adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
@@ -335,13 +332,19 @@ def COPYgrade ( stud, key, index):
             for j in range(index, index+keynums):
                 studTemp=stud[j].split(',')
                 if ansTemp[0]==studTemp[0]:
-                    max_length = max(len(ansTemp[1]), len(studTemp[1]))
-                    if needleman_wunsch(ansTemp[1], studTemp[1]) / float(max_length) > 0.8: #correct if over 80% match
-                        for k in range(2, len(studTemp)):
-                            if(int(ansTemp[i]) >= int(studTemp[k])-5 and int(ansTemp[i]) <= int(studTemp[k])+5):
-                                correct+=1
-                                done=1
-                                break
+                    for k in range(2, len(studTemp)):
+                        if(int(ansTemp[i]) >= int(studTemp[k])-5 and int(ansTemp[i]) <= int(studTemp[k])+5):
+                            correct += 0.5
+                            ans_sequence = ansTemp[1]
+                            student_sequence = studTemp[1]
+                            max_align_score = max(len(ans_sequence), len(student_sequence)) #either sequence can be longer
+                            align_score = needleman_wunsch(ans_sequence, student_sequence)
+                            if align_score < 0:
+                                align_score = 0
+                            adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
+                            score += adj_score / 2
+                            done=1
+                            break
                 if(done==1):
                     break
 
