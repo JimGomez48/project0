@@ -5,6 +5,7 @@ Created on Apr 22, 2014
 '''
 
 import sys
+from bisect import bisect_left
 # ########################
 #
 # To run: python Eval.py studentAnswers.txt genomeX
@@ -24,6 +25,42 @@ def findIndex(arr, temp):
     for i in range(0,len(arr)):
         if ( arr[i][0:len(temp)]==temp):
             return i
+
+def longest_increasing_subsequence(sequence):
+    seq_len = len(sequence)
+    M = []
+    predecessor = []
+    for i in xrange(seq_len):
+        M.append(0)
+        predecessor.append(0)
+    M.append(0)
+    M[0] = 0 # not really used
+    longest_subseq_len = 0
+    for i in xrange(0, seq_len):
+        lo = 1
+        hi = longest_subseq_len
+        while lo <= hi:
+          mid = (lo+hi)/2
+          if sequence[M[mid]] < sequence[i]:
+              lo = mid+1
+          else:
+            hi = mid-1
+        newL = lo
+        predecessor[i] = M[newL-1]
+        if newL > longest_subseq_len:
+            M[newL] = i
+            longest_subseq_len = newL
+        elif sequence[i] < sequence[M[newL]]:
+            M[newL] = i
+    subseq = []
+    for i in xrange(longest_subseq_len):
+      subseq.append(0)
+    k = M[longest_subseq_len]
+    for i in xrange(longest_subseq_len):
+        subseq[longest_subseq_len-i-1] = sequence[k]
+        k = predecessor[k]
+    return subseq
+
 
 def needleman_wunsch(n, m):
     rows = len(n) + 1
