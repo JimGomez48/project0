@@ -5,7 +5,7 @@ Created on Apr 22, 2014
 '''
 
 import sys
-from bisect import bisect_left
+
 # ########################
 #
 # To run: python Eval.py studentAnswers.txt genomeX
@@ -25,42 +25,6 @@ def findIndex(arr, temp):
     for i in range(0,len(arr)):
         if ( arr[i][0:len(temp)]==temp):
             return i
-
-def longest_increasing_subsequence(sequence):
-    seq_len = len(sequence)
-    M = []
-    predecessor = []
-    for i in xrange(seq_len):
-        M.append(0)
-        predecessor.append(0)
-    M.append(0)
-    M[0] = 0 # not really used
-    longest_subseq_len = 0
-    for i in xrange(0, seq_len):
-        lo = 1
-        hi = longest_subseq_len
-        while lo <= hi:
-          mid = (lo+hi)/2
-          if sequence[M[mid]] < sequence[i]:
-              lo = mid+1
-          else:
-            hi = mid-1
-        newL = lo
-        predecessor[i] = M[newL-1]
-        if newL > longest_subseq_len:
-            M[newL] = i
-            longest_subseq_len = newL
-        elif sequence[i] < sequence[M[newL]]:
-            M[newL] = i
-    subseq = []
-    for i in xrange(longest_subseq_len):
-      subseq.append(0)
-    k = M[longest_subseq_len]
-    for i in xrange(longest_subseq_len):
-        subseq[longest_subseq_len-i-1] = sequence[k]
-        k = predecessor[k]
-    return subseq
-
 
 def needleman_wunsch(n, m):
     rows = len(n) + 1
@@ -383,6 +347,158 @@ def COPYgrade ( stud, key, index):
 
     return grade(studTot, correct, total)
 
+def longest_increasing_subsequence(sequence):
+    seq_len = len(sequence)
+    M = []
+    predecessor = []
+    for i in xrange(seq_len):
+        M.append(0)
+        predecessor.append(0)
+    M.append(0)
+    M[0] = 0 # not really used
+    longest_subseq_len = 0
+    for i in xrange(0, seq_len):
+        lo = 1
+        hi = longest_subseq_len
+        while lo <= hi:
+          mid = (lo+hi)/2
+          if sequence[M[mid]] < sequence[i]:
+              lo = mid+1
+          else:
+            hi = mid-1
+        newL = lo
+        predecessor[i] = M[newL-1]
+        if newL > longest_subseq_len:
+            M[newL] = i
+            longest_subseq_len = newL
+        elif sequence[i] < sequence[M[newL]]:
+            M[newL] = i
+    subseq = []
+    for i in xrange(longest_subseq_len):
+      subseq.append(0)
+    k = M[longest_subseq_len]
+    for i in xrange(longest_subseq_len):
+        subseq[longest_subseq_len-i-1] = sequence[k]
+        k = predecessor[k]
+    return subseq
+
+def findCoverage( fullRange, length):
+    newRange=list()
+    count =1
+    newRange.append(fullRange[0])
+    overlap=0
+    for i in range(1,len(fullRange)):
+        if(newRange[count-1][1]>=fullRange[i][0] and newRange[count-1][1]<=fullRange[i][1]):
+            #count+=1
+            overlap+=newRange[count-1][1]-fullRange[i][0]
+            newRange[count-1]=[newRange[count-1][0],fullRange[i][1]]
+            
+        else:
+            newRange.append(fullRange[i])
+            count+=1
+            
+    sums=0
+    for i in range(len(newRange)):
+        sums+=newRange[i][1]-newRange[i][0]+1
+    return float(sums)/length, overlap
+    
+    
+
+def ASSEMBLYgrade(stud, key, index):
+    keyIndex=findIndex(key,">chr")+1
+    i=keyIndex
+    key_answers=[]
+    while (i < len(key) and key[i][0] != '>'):
+            i += 1    
+
+    key_answers=''
+    
+    for ans in key[keyIndex:i]:
+        split_ans = ans.split(',')    
+        key_answers+=str(ans)
+
+    answer_key_length = len(key_answers)
+    i = index
+    # find end of student answers
+    while (i < len(stud) and stud[i][0]!='>'):
+        i += 1
+    #student_answers = []
+    #print stud
+    #for ans in stud[index:i]:
+    #    student_answers.append(ans.split(',')) # takes in every chunk   
+    
+    studTot = 0 # Number of chunks taken from student's submission
+    total = 0 # Number of total chunks from answer key 
+    correct = 0
+    
+    k=index
+    while (k < len(stud)):
+        studTot+=1
+        k+=1
+    
+    # Sort by increasing index (the second part of each line)
+    #student_answers.sort(key= lambda student_answers:(len(student_answers[0]),len(student_answers[0])), reverse=True)
+    stud.sort(key= lambda stud:(len(stud),len(stud)), reverse=True)
+
+    score = 0
+    
+    #GRADE:
+    key_size=50
+    
+    index = {}
+    
+    for i in range(len(key_answers)):#50 is the 50-mer map
+        if i + key_size <=  len(key_answers):
+            key = key_answers[i:i+key_size]             
+            
+            if index.has_key(key):
+                index[key].append(i)
+            else:
+                index[key] = list()
+                index[key].append(i)          
+    
+    startPos=[]
+    for i in range(studTot):
+        templist=[]
+        for j in range(len(stud[i])-key_size):
+            key = stud[i][j:j+key_size] 
+            #print key
+            if(index.has_key(key)):
+                templist.append(min(index.get(key)))
+            else:
+                print "Index not found"
+        startPos.append(templist)
+
+    fullRange=list()
+
+    for i in range(len(startPos)):
+        seq = longest_increasing_subsequence(startPos[i])
+        count=0
+        fullRange.append([seq[0],seq[-1]+50])
+        
+    listed=fullRange
+    listed.sort(key= lambda listed:(int(listed[0])))
+    
+    covScore, overlap= findCoverage(listed, len(key_answers))
+    
+    return covScore*0.5 + 0.5*max(1-float(overlap)/len(key_answers),0)
+    '''
+        
+    fullRange.sort(key= lambda fullRange:(int(fullRange[1])-int(fullRange[0])), reverse=True)
+            
+    sums=0
+    N50=0
+    avgN50=0
+    
+    for i in range(len(fullRange)):
+        N50=fullRange[i][1]-fullRange[i][0]+1
+        sums+=N50
+        avgN50=sums/i
+        if(sums>=len(key_answers)/2):
+            break
+        
+    score= min(avgN50/(len(key_answers)/4.0),1)*0.5'''
+
 def Eval(answerKey, studentAns):
 
     # Open up student answers
@@ -396,6 +512,7 @@ def Eval(answerKey, studentAns):
     snpGrade=0
     strGrade=0
     aluGrade=0
+    assGrade=0
 
     for i in range(0,len(studAns)-1):
         #if (studAns[i][0:3]==">ID"):
@@ -427,14 +544,16 @@ def Eval(answerKey, studentAns):
             #print "STR grade: "+ str(strGrade)
         if (studAns[i][0:4]==">ALU"):
             aluGrade=INDELgrade(studAns,ansKey,i+1, ">ALU")
+        if (studAns[i][0:9]==">ASSEMBLY"):
+            assGrade=ASSEMBLYgrade(studAns,ansKey, i+1)
 
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade,
-              'STR': strGrade, 'ALU': aluGrade}
+              'STR': strGrade, 'ALU': aluGrade, 'ASS':assGrade}
     return grades
 
 def main():
-    studentAns = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
-    answerKey = open("C:\Users\Kevin\Downloads\\ans_STRtest4.txt", "r")
+    studentAns = open("studAss.txt", "r")
+    answerKey = open("ans_Assembly.txt", "r")
     test= Eval(answerKey,studentAns)
     for key in test:
         print key + ' grade: ' + str(test[key])
