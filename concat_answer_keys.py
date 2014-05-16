@@ -20,6 +20,7 @@ def get_num_from_file(file_name):
     num = num[1:]
     return int(num)
 
+
 def main():
     if len(sys.argv) < 3:
         usage()
@@ -33,20 +34,20 @@ def main():
         ">DELETE:",
         ">SNP:"
     ]
-    dir = str(sys.argv[1])
+    ans_keys_dir = str(sys.argv[1])
     genome_id = str(sys.argv[2])
     answer_key_name = "ans_" + genome_id + ".txt"
 
     print "Starting answer key..."
+    file_list = os.listdir(ans_keys_dir)
+    file_list.sort(key=get_num_from_file)
     with open(answer_key_name, 'w') as answer_file:
         answer_file.write(">" + genome_id + "\n")
         for ans_section in ans_sections:
             answer_file.write(ans_section + "\n")
-            file_list = os.listdir(dir)
-            file_list.sort(key=get_num_from_file)
             for file_name in file_list:
                 try:
-                    with open(dir + file_name, 'r') as current_file:
+                    with open(ans_keys_dir + file_name, 'r') as current_file:
                         section_found = False
                         for line in current_file:
                             if section_found:
@@ -62,7 +63,7 @@ def main():
                                               " from " + file_name
                 except IOError as e:
                     sys.stderr.write("Error opening \'" + file_name + "\'\n")
-                    sys.stderr.write(e.strerror + "\n")
+                    sys.stderr.write(e.strerror + '\n')
                     sys.exit(1)
 
     print "DONE"
