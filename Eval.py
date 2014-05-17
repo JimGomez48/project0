@@ -342,7 +342,7 @@ def COPYgrade ( stud, key, index):
                             if align_score < 0:
                                 align_score = 0
                             adj_score = (float(align_score)/(max_align_score)) #normalize to 0 to 1
-                            score += adj_score / 2
+                            correct += adj_score / 2
                             done=1
                             break
                 if(done==1):
