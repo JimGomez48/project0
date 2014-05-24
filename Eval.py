@@ -478,8 +478,8 @@ def ASSEMBLYgrade(stud, key, index):
         seq = longest_increasing_subsequence(startPos[i])
         print seq
         count=0
-        #if len(seq)!=0:
-        fullRange.append([seq[0],seq[-1]+50])
+        if len(seq)!=0:
+            fullRange.append([seq[0],seq[-1]+50])
         
     listed=fullRange
     listed.sort(key= lambda listed:(int(listed[0])))
