@@ -468,15 +468,15 @@ def ASSEMBLYgrade(stud, key, index):
             #print key
             if(index.has_key(key)):
                 templist.append(min(index.get(key)))
-            else:
-                print "Index not found"
+            #else:
+            #    print "Index not found"
         startPos.append(templist)
 
     fullRange=list()
 
     for i in range(len(startPos)):
         seq = longest_increasing_subsequence(startPos[i])
-        print seq
+        #print seq
         count=0
         #if len(seq)!=0:
         fullRange.append([seq[0],seq[-1]+50])
@@ -531,28 +531,20 @@ def Eval(answerKey, studentAns):
     for i in range(0,len(studAns)-1):
         if (studAns[i][0:5]==">COPY"):
             copyGrade=COPYgrade(studAns,ansKey,i+1)
-            print "COPY grade: " + str(copyGrade)
         if (studAns[i][0:10]==">INVERSION"):
             invGrade=INVgrade(studAns,ansKey,i+1)
-            print "INVERSIONS grade: "+ str(invGrade)
         if (studAns[i][0:7]==">INSERT"):
             insertGrade =INDELgrade(studAns,ansKey,i+1, ">INSERT")
-            print "INSERTIONS grade: "+ str(insertGrade)
         if (studAns[i][0:7]==">DELETE"):
             deleteGrade=INDELgrade(studAns,ansKey,i+1, ">DELETE")
-            print "DELETIONS grade: "+ str(deleteGrade)
         if (studAns[i][0:4]==">SNP"):
             snpGrade=SNPgrade(studAns,ansKey,i+1)
-            print "SNP grade: "+ str(snpGrade)
         if (studAns[i][0:4]==">STR"):
             strGrade=STRgrade(studAns,ansKey,i+1)
-            print "STR grade: "+ str(strGrade)
         if (studAns[i][0:4]==">ALU"):
             aluGrade=INDELgrade(studAns,ansKey,i+1, ">ALU")
-            print "ALU grade: "+str(aluGrade)
         if (studAns[i][0:9]==">ASSEMBLY"):
             assGrade=ASSEMBLYgrade(studAns,ansKey, i+1)
-            print "ASS grade: "+str(assGrade)
 
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade,
               'STR': strGrade, 'ALU': aluGrade, 'ASS':assGrade}
