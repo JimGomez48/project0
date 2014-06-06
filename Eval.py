@@ -82,16 +82,17 @@ def SNPgrade(stud, key, stud_index):
     # find end of student answers
     while (i < len(stud) and stud[i][0]!='>'):
         i += 1
-    student_answers = []
-    for ans in stud[stud_index:i]:
-        student_answers.append(ans.split(','))
+    new_i = i
 
-    # Sort by increasing index (the second part of each line)
-    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[3])))
+    #if the student answer file has 400% the number of SNPs as really exists, just assign 0 and don't waste time scoring
+    if (new_i - stud_index) > 4 * answer_key_length:
+        return new_i, 0
+    stud[stud_index:new_i] = sorted(stud[stud_index:new_i], key=lambda l: (int(l.split(',')[0]),int(l.split(',')[3])))
 
     score = 0
     max_posn_diff = 5
-    for student_ans in student_answers:
+    for student_ans in stud[stud_index:new_i]:
+        student_ans = student_ans.split(',')
         remove_list = []
 
         #loop through remaining answer key entries to find the best match, if any
@@ -115,7 +116,7 @@ def SNPgrade(stud, key, stud_index):
         for old_key in remove_list:
             key_answers.remove(old_key)
 
-    return grade(len(student_answers), score, answer_key_length)
+    return new_i, grade(len(stud[stud_index:new_i]), score, answer_key_length)
 
 def STRgrade(stud, key, stud_index):
     keyIndex = findIndex(key,">STR")
@@ -133,16 +134,14 @@ def STRgrade(stud, key, stud_index):
     # find end of student answers
     while (i < len(stud) and stud[i][0]!='>'):
         i += 1
-    student_answers = []
-    for ans in stud[stud_index:i]:
-        student_answers.append(ans.split(','))
+    new_i = i
 
-    # Sort by increasing index (the second part of each line)
-    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[3])))
+    stud[stud_index:new_i] = sorted(stud[stud_index:new_i], key=lambda l: (int(l.split(',')[0]),int(l.split(',')[3])))
 
     score = 0
     max_posn_diff = 20
-    for student_ans in student_answers:
+    for student_ans in stud[stud_index:new_i]:
+        student_ans = student_ans.split(',')
         remove_list = []
 
         #loop through remaining answer key entries to find the best match, if any
@@ -178,7 +177,7 @@ def STRgrade(stud, key, stud_index):
         for old_key in remove_list:
             key_answers.remove(old_key)
 
-    return grade(len(student_answers), score, answer_key_length)
+    return new_i, grade(len(stud[stud_index:new_i]), score, answer_key_length)
 
 #criteria to grade the inversion portion
 def INVgrade ( stud, key, stud_index):
@@ -197,16 +196,14 @@ def INVgrade ( stud, key, stud_index):
     # find end of student answers
     while (i < len(stud) and stud[i][0]!='>'):
         i += 1
-    student_answers = []
-    for ans in stud[stud_index:i]:
-        student_answers.append(ans.split(','))
+    new_i = i
 
-    # Sort by increasing index (the second part of each line)
-    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[2])))
+    stud[stud_index:new_i] = sorted(stud[stud_index:new_i], key=lambda l: (int(l.split(',')[0]),int(l.split(',')[2])))
 
     score = 0
     max_posn_diff = 5
-    for student_ans in student_answers:
+    for student_ans in stud[stud_index:new_i]:
+        student_ans = student_ans.split(',')
         remove_list = []
 
         #loop through remaining answer key entries to find the best match, if any
@@ -237,7 +234,7 @@ def INVgrade ( stud, key, stud_index):
         for old_key in remove_list:
             key_answers.remove(old_key)
 
-    return grade(len(student_answers), score, answer_key_length)
+    return new_i, grade(len(stud[stud_index:new_i]), score, answer_key_length)
 
 #criteria to grade the insert portion
 def INDELgrade ( stud, key, stud_index, insert_or_delete):
@@ -256,16 +253,14 @@ def INDELgrade ( stud, key, stud_index, insert_or_delete):
     # find end of student answers
     while (i < len(stud) and stud[i][0]!='>'):
         i += 1
-    student_answers = []
-    for ans in stud[stud_index:i]:
-        student_answers.append(ans.split(','))
+    new_i = i
 
-    # Sort by increasing index (the second part of each line)
-    student_answers.sort(key= lambda student_answers:(int(student_answers[0]),int(student_answers[2])))
+    stud[stud_index:new_i] = sorted(stud[stud_index:new_i], key=lambda l: (int(l.split(',')[0]),int(l.split(',')[2])))
 
     score = 0
     max_posn_diff = 5
-    for student_ans in student_answers:
+    for student_ans in stud[stud_index:new_i]:
+        student_ans = student_ans.split(',')
         remove_list = []
 
         #loop through remaining answer key entries to find the best match, if any
@@ -296,7 +291,7 @@ def INDELgrade ( stud, key, stud_index, insert_or_delete):
         for old_key in remove_list:
             key_answers.remove(old_key)
 
-    return grade(len(student_answers), score, answer_key_length)
+    return new_i, grade(len(stud[stud_index:new_i]), score, answer_key_length)
 
 def COPYgrade ( stud, key, index):
     ans=findIndex(key,">COPY")+1
@@ -318,6 +313,7 @@ def COPYgrade ( stud, key, index):
         studTot+=len(stud[m].split(','))-2
         copynums+=1
         m+=1
+    new_i = m
 
     #for p in range(0,keynums-1):
     ansTemp=key[ans].split(',')
@@ -348,7 +344,7 @@ def COPYgrade ( stud, key, index):
                 if(done==1):
                     break
 
-    return grade(studTot, correct, total)
+    return new_i, grade(studTot, correct, total)
 
 def longest_increasing_subsequence(sequence):
     seq_len = len(sequence)
@@ -395,29 +391,29 @@ def findCoverage( fullRange, length):
             #count+=1
             overlap+=newRange[count-1][1]-fullRange[i][0]
             newRange[count-1]=[newRange[count-1][0],fullRange[i][1]]
-            
+
         else:
             newRange.append(fullRange[i])
             count+=1
-            
+
     sums=0
     for i in range(len(newRange)):
         sums+=newRange[i][1]-newRange[i][0]+1
     return float(sums)/length, overlap
-    
-    
+
+
 
 def ASSEMBLYgrade(stud, key, index):
     keyIndex=findIndex(key,">chr")+1
     i=keyIndex
     key_answers=[]
     while (i < len(key) and key[i][0] != '>'):
-            i += 1    
+            i += 1
 
     key_answers=''
-    
+
     for ans in key[keyIndex:i]:
-        split_ans = ans.split(',')    
+        split_ans = ans.split(',')
         key_answers+=str(ans)
 
     answer_key_length = len(key_answers)
@@ -425,46 +421,47 @@ def ASSEMBLYgrade(stud, key, index):
     # find end of student answers
     while (i < len(stud) and stud[i][0]!='>'):
         i += 1
+    new_i = i
     #student_answers = []
     #print stud
     #for ans in stud[index:i]:
-    #    student_answers.append(ans.split(',')) # takes in every chunk   
-    
+    #    student_answers.append(ans.split(',')) # takes in every chunk
+
     studTot = 0 # Number of chunks taken from student's submission
-    total = 0 # Number of total chunks from answer key 
+    total = 0 # Number of total chunks from answer key
     correct = 0
-    
+
     k=index
     while (k < len(stud)):
         studTot+=1
         k+=1
-    
+
     # Sort by increasing index (the second part of each line)
     #student_answers.sort(key= lambda student_answers:(len(student_answers[0]),len(student_answers[0])), reverse=True)
     stud.sort(key= lambda stud:(len(stud),len(stud)), reverse=True)
 
     score = 0
-    
+
     #GRADE:
     key_size=50
-    
+
     index = {}
-    
+
     for i in range(len(key_answers)):#50 is the 50-mer map
         if i + key_size <=  len(key_answers):
-            key = key_answers[i:i+key_size]             
-            
+            key = key_answers[i:i+key_size]
+
             if index.has_key(key):
                 index[key].append(i)
             else:
                 index[key] = list()
-                index[key].append(i)          
-    
+                index[key].append(i)
+
     startPos=[]
     for i in range(studTot):
         templist=[]
         for j in range(len(stud[i])-key_size):
-            key = stud[i][j:j+key_size] 
+            key = stud[i][j:j+key_size]
             #print key
             if(index.has_key(key)):
                 templist.append(min(index.get(key)))
@@ -480,34 +477,32 @@ def ASSEMBLYgrade(stud, key, index):
         count=0
         if len(seq)!=0:
             fullRange.append([seq[0],seq[-1]+50])
-        
+
     listed=fullRange
     listed.sort(key= lambda listed:(int(listed[0])))
-    
+
     covScore, overlap= findCoverage(listed, len(key_answers))
-    
-    return covScore - 0.5*max(min(1,float(overlap)/len(key_answers)),0)
+
+    return new_i, covScore - 0.5*max(min(1,float(overlap)/len(key_answers)),0)
     '''
-        
+
     fullRange.sort(key= lambda fullRange:(int(fullRange[1])-int(fullRange[0])), reverse=True)
-            
+
     sums=0
     N50=0
     avgN50=0
-    
+
     for i in range(len(fullRange)):
         N50=fullRange[i][1]-fullRange[i][0]+1
         sums+=N50
         avgN50=sums/i
         if(sums>=len(key_answers)/2):
             break
-        
+
     score= min(avgN50/(len(key_answers)/4.0),1)*0.5'''
 
 def Eval(answerKey, studentAns):
 
-    # Open up student answers
-    #studentAns = open(sys.argv[1], "r")
     studAns = [line.rstrip() for line in studentAns]
     studentAns.close()
     copyGrade=0
@@ -520,31 +515,35 @@ def Eval(answerKey, studentAns):
     assGrade=0
 
     for i in range(0,len(studAns)-1):
-        #if (studAns[i][0:3]==">ID"):
         if (studAns[i][0]==">"):
             filename = studAns[i+1]
             filename=filename.translate(None,'\n>')
-    #answerKey = open("ans_"+filename+".txt", "r")
+            break
     ansKey = [line.rstrip() for line in answerKey]
     answerKey.close()
 
     for i in range(0,len(studAns)-1):
+        new_i = -1
         if (studAns[i][0:5]==">COPY"):
-            copyGrade=COPYgrade(studAns,ansKey,i+1)
+            new_i, copyGrade=COPYgrade(studAns,ansKey,i+1)
         if (studAns[i][0:10]==">INVERSION"):
-            invGrade=INVgrade(studAns,ansKey,i+1)
+            new_i, invGrade=INVgrade(studAns,ansKey,i+1)
         if (studAns[i][0:7]==">INSERT"):
-            insertGrade =INDELgrade(studAns,ansKey,i+1, ">INSERT")
+            new_i, insertGrade =INDELgrade(studAns,ansKey,i+1, ">INSERT")
         if (studAns[i][0:7]==">DELETE"):
-            deleteGrade=INDELgrade(studAns,ansKey,i+1, ">DELETE")
+            new_i, deleteGrade=INDELgrade(studAns,ansKey,i+1, ">DELETE")
         if (studAns[i][0:4]==">SNP"):
-            snpGrade=SNPgrade(studAns,ansKey,i+1)
+            new_i, snpGrade=SNPgrade(studAns,ansKey,i+1)
         if (studAns[i][0:4]==">STR"):
-            strGrade=STRgrade(studAns,ansKey,i+1)
+            new_i, strGrade=STRgrade(studAns,ansKey,i+1)
         if (studAns[i][0:4]==">ALU"):
-            aluGrade=INDELgrade(studAns,ansKey,i+1, ">ALU")
+            new_i, aluGrade=INDELgrade(studAns,ansKey,i+1, ">ALU")
         if (studAns[i][0:9]==">ASSEMBLY"):
-            assGrade=ASSEMBLYgrade(studAns,ansKey, i+1)
+            new_i, assGrade=ASSEMBLYgrade(studAns,ansKey, i+1)
+
+        #allows loop to skip over the portions that were already evaluated
+        if new_i != -1:
+            i = new_i - 1
 
     grades = {'SNP': snpGrade,'INDEL':(insertGrade+deleteGrade)/2,'COPY': copyGrade, 'INV': invGrade,
               'STR': strGrade, 'ALU': aluGrade, 'ASS':assGrade}
