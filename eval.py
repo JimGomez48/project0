@@ -574,7 +574,8 @@ def main():
     args = parser.parse_args()
     answer_key = args.answer_key
     stud_ans = args.submission_file
-    
+
+    print "Evaluating..."
     test = Eval(answerKey=open(answer_key), studentAns=open(stud_ans))
     for key in test:
         print key + ' grade: ' + str(test[key])
