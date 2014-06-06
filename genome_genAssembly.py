@@ -7,6 +7,7 @@ Created on Apr 14, 2014
 import random
 import sys
 import re
+import argparse
 
 nucleo_base_list = ["C", "T", "G", "A"]
 
@@ -146,19 +147,71 @@ def choose_and_remove( items):
     return None
 
 ################################# START OF SCRIPT ###################################
-if len(sys.argv) < 4:
-    usage(sys.argv[0])
-    sys.exit()
+parser = argparse.ArgumentParser(
+    description="A variant of \'genome_gen.py\'. This script only includes "
+                "indels, SNPs, and inversions. This script generates files to "
+                "be used for genomic assembly. The following files are created"
+                ": 1) paired-end reads \'reads_*.txt\' from "
+                "target assembly genome 2) mutation answer key \'ans_*.txt\'"
+)
+parser.add_argument(
+    "genome_id",
+    type=str,
+    help="The name or ID of this genome for identification purposes. The "
+         "genome id will be reflected in the generated file names."
+)
+parser.add_argument(
+    "num_chromosomes",
+    type=int,
+    help="The number of chromosomes to generate for the genome."
+)
+parser.add_argument(
+    "chromosome_size",
+    type=int,
+    help="The size of each chromosome, by default in thousands of bp. Change "
+         "scale with -s option"
+)
+parser.add_argument(
+    "coverage",
+    type=float,
+    help="The amount of coverage reflected in the reads with respect to the "
+         "target assembly genome"
+)
+parser.add_argument(
+    "-s", "--scale",
+    type=str,
+    choices=["k", "m", "b"],
+    default="k",
+    help="the amount to scale chromosome-size by. k: 1-thousand, m: 1-million,"
+         " b: 1-billion. By default, scale is 1000."
+)
+args = parser.parse_args()
 
-# get parameters from console
-genome_id = str(sys.argv[1])
-num_chromosomes = int(sys.argv[2])
-chromosome_size = int(sys.argv[3])
-read_coverage = int(sys.argv[4])
+genome_id = args.genome_id
+num_chromosomes = args.num_chromosomes
+chromosome_size = args.chromosome_size
+read_coverage = args.coverage
+if args.scale == 'k':
+    chromosome_size *= 1000
+elif args.scale == 'm':
+    chromosome_size *= 1000000
+elif args.scale == 'b':
+    chromosome_size *= 1000000000
 
+# if len(sys.argv) < 4:
+#     usage(sys.argv[0])
+#     sys.exit()
+#
+# # get parameters from console
+# genome_id = str(sys.argv[1])
+# num_chromosomes = int(sys.argv[2])
+# chromosome_size = int(sys.argv[3])
+# read_coverage = int(sys.argv[4])
+#
 print "\ngenome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)
 print "chrom-size:\t" + str(chromosome_size)
+print "read-coverage:\t" + str(read_coverage)
 
 fullCOPYseq = []
 fullCOPY = []

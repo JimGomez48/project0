@@ -7,6 +7,7 @@ Created on Apr 14, 2014
 import random
 import sys
 import re
+import argparse
 
 nucleo_base_list = ["C", "T", "G", "A"]
 
@@ -70,8 +71,7 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
     STRpos=[]
     ALUpos=[]
     genome=''
-    #
-    #    
+
     #Generate the string, then write it
     for i in range(1, num_chromosomes + 1):
         ref_file.write("\n>chr" + str(i) + "\n")
@@ -128,6 +128,7 @@ def modSTR(genome, STR):
     INS=[]
     DEL=[]    
 
+    print "\tGenerating STRs..."
     for j in range(len(STR)):
         tmp=random.randint(-2,2)
         tmpStr='' 
@@ -157,31 +158,83 @@ def modSTR(genome, STR):
     return genome, INS, DEL, fullSTR
 
 def modALU (genome, ALU, length):
-    for i in range(int(length/100000)+1):# insert 1 every 100,000
-        randomPos=random.randint(0,len(genome)-len(ALU[0][1]))
-        ALUtemp=ALU[0][1]
-        for j in range(int(len(ALU[0][1])*0.3)):#30% mutations
-            tmp=random.randint(0,len(ALUtemp)-1)
-            ALUtemp=remove_from_string(ALUtemp,tmp)
-            ALUtemp=insert_to_string(ALUtemp,tmp,random.choice(nucleo_base_list))
-            
-        genome= remove_range_from_string(genome, randomPos, len(ALUtemp))
-        genome= insert_to_string(genome, randomPos, ALUtemp)
-        print len(ALUtemp)
-        ALU.append([randomPos, str(ALUtemp)])
-        ALU = sorted(ALU, key = lambda ALU: int(ALU[:][0]))
+    print "\tGenerating ALUs..."
+    try:
+        for i in range(int(length/100000)+1):# insert 1 every 100,000
+            randomPos=random.randint(0,len(genome)-len(ALU[0][1]))
+            ALUtemp=ALU[0][1]
+            for j in range(int(len(ALU[0][1])*0.3)):#30% mutations
+                tmp=random.randint(0,len(ALUtemp)-1)
+                ALUtemp=remove_from_string(ALUtemp,tmp)
+                ALUtemp=insert_to_string(ALUtemp,tmp,random.choice(nucleo_base_list))
+
+            genome= remove_range_from_string(genome, randomPos, len(ALUtemp))
+            genome= insert_to_string(genome, randomPos, ALUtemp)
+            # print len(ALUtemp)
+            ALU.append([randomPos, str(ALUtemp)])
+            ALU = sorted(ALU, key = lambda ALU: int(ALU[:][0]))
+    except IndexError:
+        # if ALU is empty, just return the empty list
+        pass
+
     return genome, ALU            
         
         
 ################################# START OF SCRIPT ###################################
-if len(sys.argv) < 4:
-    usage(sys.argv[0])
-    sys.exit()
+parser = argparse.ArgumentParser(
+    description="A variant of \'genome_gen.py\' that includes ALU mutations. "
+                "This script generates a reference and donor genome as a set "
+                "of files. The files can be used for various computational "
+                "genetics purposes. The following files are created: 1) "
+                "reference genome \'ref_*.txt\' 2) mutated donor genome "
+                "\'private_*.txt\' 3) paired-end reads \'reads_*.txt\' from "
+                "donor genome 4) mutation answer key \'ans_*.txt\'"
+)
+parser.add_argument(
+    "genome_id",
+    type=str,
+    help="The name or ID of this genome for identification purposes. The "
+         "genome id will be reflected in the generated file names."
+)
+parser.add_argument(
+    "num_chromosomes",
+    type=int,
+    help="The number of chromosomes to generate for the genome."
+)
+parser.add_argument(
+    "chromosome_size",
+    type=int,
+    help="The size of each chromosome, by default in thousands of bp. Change "
+         "scale with -s option"
+)
+parser.add_argument(
+    "-s", "--scale",
+    type=str,
+    choices=["k", "m", "b"],
+    default="k",
+    help="the amount to scale chromosome-size by. k: 1-thousand, m: 1-million,"
+         " b: 1-billion. By default, scale is 1000."
+)
+args = parser.parse_args()
 
-# get parameters from console
-genome_id = str(sys.argv[1])
-num_chromosomes = int(sys.argv[2])
-chromosome_size = int(sys.argv[3]) * 1000000
+genome_id = args.genome_id
+num_chromosomes = args.num_chromosomes
+chromosome_size = args.chromosome_size
+if args.scale == 'k':
+    chromosome_size *= 1000
+elif args.scale == 'm':
+    chromosome_size *= 1000000
+elif args.scale == 'b':
+    chromosome_size *= 1000000000
+
+# if len(sys.argv) < 4:
+#     usage(sys.argv[0])
+#     sys.exit()
+#
+# # get parameters from console
+# genome_id = str(sys.argv[1])
+# num_chromosomes = int(sys.argv[2])
+# chromosome_size = int(sys.argv[3]) * 1000000
 
 print "\ngenome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)
@@ -229,7 +282,7 @@ for chromosome in range(1, num_chromosomes + 1):
     
     baseFileList=baseFileList.replace("\n","")
     
-    #Modify the STRs
+    #Modify the STRs and ALUs
     baseFileList, aluList = modALU(baseFileList,ALU, chromosome_size)
     baseFileList, insList, delList, strList=modSTR(baseFileList,STR)
 
