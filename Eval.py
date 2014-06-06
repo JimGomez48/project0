@@ -483,7 +483,7 @@ def ASSEMBLYgrade(stud, key, index):
 
     covScore, overlap= findCoverage(listed, len(key_answers))
 
-    return new_i, covScore - 0.5*max(min(1,float(overlap)/len(key_answers)),0)
+    return new_i, min(1, covScore) - 0.5*max(min(1,float(overlap)/len(key_answers)),0)
     '''
 
     fullRange.sort(key= lambda fullRange:(int(fullRange[1])-int(fullRange[0])), reverse=True)
