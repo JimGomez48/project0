@@ -149,8 +149,8 @@ def choose_and_remove( items):
 ################################# START OF SCRIPT ###################################
 parser = argparse.ArgumentParser(
     description="A variant of \'genome_gen.py\'. This script only includes "
-                "indels, SNPs, and inversions. This script generates files to "
-                "be used for genomic assembly. The following files are created"
+                "indels and SNPs. This script generates files to be used "
+                "for genomic assembly. The following files are created "
                 ": 1) paired-end reads \'reads_*.txt\' from "
                 "target assembly genome 2) mutation answer key \'ans_*.txt\'"
 )
