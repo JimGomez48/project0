@@ -7,6 +7,7 @@ Created on Apr 14, 2014
 import random
 import sys
 import re
+import argparse
 
 nucleo_base_list = ["C", "T", "G", "A"]
 
@@ -37,14 +38,14 @@ def copy_to_string(arr, index, size):
         arr = insert_to_string(arr, index[i], arr1)
     return arr
 
-def generate_STR(length):    
+def generate_STR(length):
     STR=[]
     for i in range(int(length*0.0001)):
         seqLen=random.randint(2,5)
-        copies=random.randint(10,20)        
+        copies=random.randint(10,20)
         temp=''
         for i in range(seqLen):
-            temp += random.choice(nucleo_base_list)        
+            temp += random.choice(nucleo_base_list)
         STR.append([temp,temp*copies])
     return STR
 
@@ -59,32 +60,32 @@ def generate_ref_genome(genome_id, num_chromosomes, length_chromosome):
 
     genome=[]
     STR=generate_STR(length_chromosome);
-        
+
     STRpos=[]
     genome=''
     #
-    #    
+    #
     #Generate the string, then write it
     for i in range(1, num_chromosomes + 1):
         ref_file.write("\n>chr" + str(i) + "\n")
         #Generate the string
         for j in range(0, length_chromosome):
             genome+=random.choice(nucleo_base_list)
-               
+
         for j in range(len(STR)):
             tmp=random.randint(0,length_chromosome-len(STR[j]))
-            
+
             genome=  remove_range_from_string(genome, tmp, len(STR[j][1]))
-            genome = insert_to_string(genome, tmp, str(STR[j][1]) )           
+            genome = insert_to_string(genome, tmp, str(STR[j][1]) )
             STRpos.append([tmp,STR[j][0],STR[j][1]])
 
         for j in range(0, length_chromosome):
             # write a maximum of 80 alleles per line
             if j != 0 and j % 80 == 0:
                 ref_file.write("\n")
-            ref_file.write(genome[j])             
-    
-            
+            ref_file.write(genome[j])
+
+
     print "Reference genome complete"
     ref_file.close()
 
@@ -105,47 +106,93 @@ def usage(name):
 def modSTR(genome, STR):
     fullSTR=[]
     INS=[]
-    DEL=[]    
+    DEL=[]
 
+    print "\tGenerating STRs..."
     for j in range(len(STR)):
         tmp=random.randint(-2,2)
-        tmpStr='' 
+        tmpStr=''
 
         if(tmp>0):
             genome = remove_range_from_string(genome, int(STR[j][0])+len(STR[j][2]), tmp*len(STR[j][1]))
             genome = insert_to_string(genome, int(STR[j][0]), tmp*str(STR[j][1]))
-            
+
             DEL.append([tmp*str(STR[j][1]), str(int(STR[j][0])+len(STR[j][2])-tmp*len(STR[j][1]))])
-            
-            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(str(STR[j][2])+tmp*str(STR[j][1]))])     
+
+            fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(str(STR[j][2])+tmp*str(STR[j][1]))])
         if(tmp<0):
             for k in range(len(STR[j][1])):
-                tmpStr+=random.choice(nucleo_base_list)    
+                tmpStr+=random.choice(nucleo_base_list)
 
             genome = remove_range_from_string(genome, int(STR[j][0]), -tmp*len(STR[j][1]))
             genome = insert_to_string(genome, int(STR[j][0]), -tmp*tmpStr)
-            
+
             INS.append([tmpStr,str(STR[j][0])])
-            
+
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2][-tmp*len(STR[j][1]):])])
-            
+
         if(tmp==0):
             fullSTR.append([str(STR[j][0]), str(STR[j][1]), str(STR[j][2])])
-            
-    fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0])) 
-    
+
+    fullSTR = sorted(fullSTR, key=lambda fullSTR: int(fullSTR[:][0]))
+
     return genome, INS, DEL, fullSTR
-        
-        
-################################# START OF SCRIPT ###################################
-if len(sys.argv) < 4:
-    usage(sys.argv[0])
-    sys.exit()
+
+
+############################## START OF SCRIPT #################################
+parser = argparse.ArgumentParser(
+    description="This script generates a reference and donor genome as a set "
+                "of files. The files can be used for various computational "
+                "genetics purposes. The following files are created: 1) "
+                "reference genome \'ref_*.txt\' 2) mutated donor genome "
+                "\'private_*.txt\' 3) paired-end reads \'reads_*.txt\'"
+                "from donor genome 4) mutation answer key \'ans_*.txt\'"
+)
+parser.add_argument(
+    "genome_id",
+    type=str,
+    help="The name or ID of this genome for identification purposes. The "
+         "genome id will be reflected in the generated file names."
+)
+parser.add_argument(
+    "num_chromosomes",
+    type=int,
+    help="The number of chromosomes to generate for the genome."
+)
+parser.add_argument(
+    "chromosome_size",
+    type=int,
+    help="The size of each chromosome, by default in thousands of bp. Change "
+         "scale with -s option"
+)
+parser.add_argument(
+    "-s", "--scale",
+    type=str,
+    choices=["k", "m", "b"],
+    default="k",
+    help="the amount to scale chromosome-size by. k: 1-thousand, m: 1-million,"
+         " b: 1-billion. By default, scale is 1000."
+)
+args = parser.parse_args()
+
+genome_id = args.genome_id
+num_chromosomes = args.num_chromosomes
+chromosome_size = args.chromosome_size
+if args.scale == 'k':
+    chromosome_size *= 1000
+elif args.scale == 'm':
+    chromosome_size *= 1000000
+elif args.scale == 'b':
+    chromosome_size *= 1000000000
+
+# if len(sys.argv) < 4:
+#     usage(sys.argv[0])
+#     sys.exit()
 
 # get parameters from console
-genome_id = str(sys.argv[1])
-num_chromosomes = int(sys.argv[2])
-chromosome_size = int(sys.argv[3]) * 1000000
+# genome_id = str(sys.argv[1])
+# num_chromosomes = int(sys.argv[2])
+# chromosome_size = int(sys.argv[3]) * 1000000
 
 print "\ngenome-ID:\t" + genome_id
 print "num-chroms:\t" + str(num_chromosomes)

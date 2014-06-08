@@ -5,6 +5,7 @@ Created on Apr 22, 2014
 '''
 
 import sys
+import argparse
 
 # ########################
 #
@@ -549,10 +550,32 @@ def Eval(answerKey, studentAns):
               'STR': strGrade, 'ALU': aluGrade, 'ASS':assGrade}
     return grades
 
+
 def main():
-    studentAns = open("test_greedyprim_genomeCPSTR.txt", "r")
-    answerKey = open("ans_genomeCPSTR.txt", "r")
-    test= Eval(answerKey,studentAns)
+    parser = argparse.ArgumentParser(
+        description="This script evaluates an answer submission of donor-genome"
+                    " mutations with respect to a reference-genome. It compares"
+                    " the submission file against a true answer key and "
+                    " generates scores for different mutation types."
+    )
+    parser.add_argument(
+        "answer_key",
+        type=str,
+        help="The true answer key containing the mutations and their locations "
+             "in the donor-genome with respect to its reference-genome"
+    )
+    parser.add_argument(
+        "submission_file",
+        type=str,
+        help="The submitted file containing a set of mutations and locations. "
+             "Tested against the true answer key"
+    )
+    args = parser.parse_args()
+    answer_key = args.answer_key
+    stud_ans = args.submission_file
+
+    print "Evaluating..."
+    test = Eval(answerKey=open(answer_key), studentAns=open(stud_ans))
     for key in test:
         print key + ' grade: ' + str(test[key])
 
