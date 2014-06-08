@@ -175,7 +175,7 @@ parser.add_argument(
     "coverage",
     type=float,
     help="The amount of coverage reflected in the reads with respect to the "
-         "target assembly genome"
+         "target assembly genome. A value of 0 specifies spectrum coverage."
 )
 parser.add_argument(
     "-s", "--scale",
